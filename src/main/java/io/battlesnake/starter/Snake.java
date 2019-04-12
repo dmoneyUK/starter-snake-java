@@ -2,8 +2,6 @@ package io.battlesnake.starter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.battlesnake.starter.handler.SnakeHandler;
-import io.battlesnake.starter.handler.SnakeHandlerBaseImpl;
-import io.battlesnake.starter.handler.SnakeHandlerWithBoardPrintingImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +16,7 @@ import static spark.Spark.post;
  */
 public class Snake {
     private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
-    private static final SnakeHandler HANDLER = new SnakeHandlerWithBoardPrintingImpl(new SnakeHandlerBaseImpl());
+    private static final SnakeHandler HANDLER = new SnakeHandler();
     private static final Logger LOG = LoggerFactory.getLogger(Snake.class);
     
     /**

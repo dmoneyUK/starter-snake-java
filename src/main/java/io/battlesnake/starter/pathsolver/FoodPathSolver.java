@@ -20,9 +20,9 @@ public class FoodPathSolver implements PathSolver {
         distance[start[0]][start[1]] = 0;
         findPathDfs(board, target, start, distance);
         path = backTrack(target, distance);
-        PrintingUtils.printBoard(distance);
-        PrintingUtils.printPath(path);
-        PrintingUtils.printVertex(start);
+        //PrintingUtils.printBoard(distance);
+        //PrintingUtils.printPath(path);
+        //PrintingUtils.printVertex(start);
         return path;
     }
     
