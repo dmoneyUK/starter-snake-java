@@ -1,4 +1,4 @@
-package io.battlesnake.starter;
+package io.battlesnake.starter.pathsolver;
 
 import java.util.Arrays;
 
@@ -17,7 +17,7 @@ public class HamiltonPathSolver {
         return false;
     }
     
-    boolean hamiltonCircleSearch(int[][] graph, int[] path, int pos) {
+    public boolean hamiltonCircleSearch(int[][] graph, int[] path, int pos) {
         //Check the finishing step
         if (pos == size - 1) {
             if (graph[path[pos]][path[0]] == 1) {
@@ -52,7 +52,7 @@ public class HamiltonPathSolver {
         return true;
     }
     
-    void resetPath() {
+    public void resetPath() {
         path = new int[size];
         Arrays.fill(path, -1);
         path[0] = 0;
