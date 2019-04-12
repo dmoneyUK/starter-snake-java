@@ -3,6 +3,7 @@ package io.battlesnake.starter;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.battlesnake.starter.handler.SnakeHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -18,11 +19,11 @@ public class SnakeTest {
         OBJECT_MAPPER.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
     }
 
-    private Snake.Handler handler;
+    private SnakeHandler handler;
 
     @BeforeEach
     void setUp() {
-        handler = new Snake.Handler();
+        handler = new SnakeHandler();
     }
 
     @Test
