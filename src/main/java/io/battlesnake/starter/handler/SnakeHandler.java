@@ -52,7 +52,6 @@ public class SnakeHandler {
             } else {
                 throw new IllegalAccessError("Strange call made to the snake: " + uri);
             }
-            PrintingUtils.printBoard(getBoard());
             LOG.info("Responding with: {}", JSON_MAPPER.writeValueAsString(snakeResponse));
             return snakeResponse;
         } catch (Exception e) {
@@ -80,10 +79,10 @@ public class SnakeHandler {
     public Map<String, String> start(JsonNode startRequest) {
         
         // init the board (2 more rows and columns for the borders.
-        initBoard(startRequest.get("width").asInt() + 2, startRequest.get("height").asInt() + 2);
+        initBoard(startRequest.get("board"));
         
         Map<String, String> response = new HashMap<>();
-        response.put("color", "#ff00ff");
+        response.put("color", "Hex-Color-Code-String");
         return response;
     }
     
@@ -95,8 +94,8 @@ public class SnakeHandler {
      */
     public Map<String, String> move(JsonNode moveRequest) {
         resetBoard();
-        int[] head = markSelf(moveRequest.get("you").findValue("body").get("data"));
-        int[] food = markFood(moveRequest.get("food").get("data"));
+        int[] head = markSelf(moveRequest.get("you").findValue("body"));
+        int[] food = markFood(moveRequest.findValue("food"));
         
         String nextStep = pathSolver.findNextStep(board, food, head);
         
@@ -120,8 +119,8 @@ public class SnakeHandler {
         return board;
     }
     
-    private void initBoard(int height, int width) {
-        board = new int[height][width];
+    private void initBoard(JsonNode boardNode) {
+        board = new int[boardNode.get("width").asInt() + 2][boardNode.get("height").asInt() + 2];
     }
     
     private void resetBoard() {

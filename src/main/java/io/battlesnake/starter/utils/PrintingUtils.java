@@ -1,31 +1,44 @@
 package io.battlesnake.starter.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.List;
 import java.util.function.Consumer;
 
 public class PrintingUtils {
     
+    private static final Logger LOG = LoggerFactory.getLogger(PrintingUtils.class);
+    
     private static Consumer<int[][]> boardConsumer = (board) -> {
-        System.out.println("____________________________");
-        for (int[] row : board) {
-            for (int v : row) {
-                System.out.print(v + " ");
-            }
-            System.out.println();
+        if(board==null){
+            return;
         }
-        System.out.println("____________________________");
+        LOG.info("__________ Board Begin __________________");
+        for (int[] row : board) {
+            String s = "";
+            for (int v : row) {
+                s += " " + v;
+            }
+            LOG.info(s);
+        }
+        LOG.info("__________Board End __________________");
     };
     
     private static Consumer<List<int[]>> pathConsumer = (row) -> {
-        for (int[] v : row) {
-            System.out.print("[" + v[0] + "," + v[1] + "], ");
+        if(row==null){
+            return;
         }
-        System.out.println();
+        for (int[] v : row) {
+            LOG.info("Path: [" + v[0] + "," + v[1] + "], ");
+        }
     };
     
     private static Consumer<int[]> vertexConsumer = (v) -> {
-        System.out.print("[" + v[0] + "," + v[1] + "], ");
-        System.out.println();
+        if(v==null){
+            return;
+        }
+        LOG.info("Vertex: [" + v[0] + "," + v[1] + "], ");
         
     };
     
