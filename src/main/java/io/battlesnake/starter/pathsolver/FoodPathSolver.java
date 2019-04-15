@@ -5,6 +5,7 @@ import io.battlesnake.starter.utils.PrintingUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 public class FoodPathSolver implements PathSolver {
     
@@ -27,11 +28,13 @@ public class FoodPathSolver implements PathSolver {
     }
     
     @Override
-    public String findNextStep(int[][] board, int[] target, int[] start) {
+    public String findNextStep(int[][] board, Optional<int[]> targetOpt, int[] start) {
+    
+        int[] target = targetOpt.orElseGet(() -> findEmptyNeighbor(board, start));
+        
         int[] nextPos = findPath(board, target, start).get(path.size() - 1);
         int y = nextPos[0] - start[0];
         int x = nextPos[1] - start[1];
-        PrintingUtils.printVertex(new int[]{y,x});
         String nextStep;
         if (y == -1 && x == 0) {
             nextStep = "up";
@@ -43,6 +46,17 @@ public class FoodPathSolver implements PathSolver {
             nextStep = "left";
         }
         return nextStep;
+    }
+    
+    private int[] findEmptyNeighbor(int[][] board, int[] start) {
+        for (int[] dir : dirs) {
+            int y = start[0] + dir[0];
+            int x = start[1] + dir[1];
+            if (board[y][x] == 0) {
+                return new int[]{y, x};
+            }
+        }
+        throw new RuntimeException("Trapped!!!");
     }
     
     private void findPathDfs(int[][] board, int[] target, int[] start, int[][] distance) {

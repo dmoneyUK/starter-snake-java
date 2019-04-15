@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.battlesnake.starter.Snake;
 import io.battlesnake.starter.pathsolver.FoodPathSolver;
 import io.battlesnake.starter.pathsolver.PathSolver;
-import io.battlesnake.starter.utils.PrintingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -14,6 +13,7 @@ import spark.Response;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class SnakeHandler {
     
@@ -95,7 +95,7 @@ public class SnakeHandler {
     public Map<String, String> move(JsonNode moveRequest) {
         resetBoard();
         int[] head = markSelf(moveRequest.get("you").findValue("body"));
-        int[] food = markFood(moveRequest.findValue("food"));
+        Optional<int[]> food = markFood(moveRequest.findValue("food"));
         
         String nextStep = pathSolver.findNextStep(board, food, head);
         
@@ -151,12 +151,14 @@ public class SnakeHandler {
         board[y][x] = reason;
     }
     
-    private int[] markFood(JsonNode node) {
-        
-        int y = node.findValue("y").asInt() + 1;
-        int x = node.findValue("x").asInt() + 1;
-        markOccupied(y, x, FOOD);
-        int[] food = {y, x};
+    private Optional<int[]> markFood(JsonNode node) {
+        Optional<int[]> food = Optional.empty();
+        if (node != null) {
+            int y = node.findValue("y").asInt() + 1;
+            int x = node.findValue("x").asInt() + 1;
+            markOccupied(y, x, FOOD);
+            food = Optional.of(new int[]{y, x});
+        }
         return food;
     }
 }
