@@ -12,6 +12,7 @@ import spark.Response;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -94,8 +95,9 @@ public class SnakeHandler {
      */
     public Map<String, String> move(JsonNode moveRequest) {
         resetBoard();
-        int[] head = markSelf(moveRequest.get("you").findValue("body"));
+        int[] head = findSelfHead(moveRequest.get("you").findValue("body"));
         Optional<int[]> food = markFood(moveRequest.findValue("food"));
+        markSankes(moveRequest.get("board").findValues("body"));
         
         String nextStep = pathSolver.findNextStep(board, food, head);
         
@@ -133,18 +135,24 @@ public class SnakeHandler {
         }
     }
     
-    private int[] markSelf(JsonNode body) {
-        
-        JsonNode node;
-        int y = 0;
-        int x = 0;
-        for (int i = body.size() - 1; i >= 0; i--) {
-            node = body.get(i);
-            y = node.get("y").asInt() + 1;
-            x = node.get("x").asInt() + 1;
-            markOccupied(y, x, BLOCKED);
-        }
+    private int[] findSelfHead(JsonNode body) {
+        JsonNode node = body.get(0);
+        int y = node.get("y").asInt() + 1;
+        int x = node.get("x").asInt() + 1;
         return new int[]{y, x};
+    }
+    
+    private void markSankes(List<JsonNode> snakes) {
+        snakes.parallelStream().forEach(body -> {
+            int y;
+            int x;
+            for (int i = body.size() - 1; i >= 0; i--) {
+                JsonNode node = body.get(i);
+                y = node.get("y").asInt() + 1;
+                x = node.get("x").asInt() + 1;
+                markOccupied(y, x, BLOCKED);
+            }
+        });
     }
     
     private void markOccupied(int y, int x, int reason) {
