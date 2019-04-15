@@ -153,7 +153,7 @@ public class SnakeHandler {
     
     private Optional<int[]> markFood(JsonNode node) {
         Optional<int[]> food = Optional.empty();
-        if (node != null) {
+        if (node.size() == 0) {
             int y = node.findValue("y").asInt() + 1;
             int x = node.findValue("x").asInt() + 1;
             markOccupied(y, x, FOOD);
