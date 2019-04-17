@@ -9,12 +9,11 @@ import java.util.Optional;
 
 public class FoodPathSolver implements PathSolver {
     
-    private List<int[]> path;
     private static int[][] dirs = {{1, 0}, {-1, 0}, {0, -1}, {0, 1}};
     
     @Override
     public List<int[]> findPath(int[][] board, int[] target, int[] start) {
-        path = new ArrayList<>();
+        List<int[]> path;
         int[][] distance = new int[board.length][board[0].length];
         for (int[] row : distance)
             Arrays.fill(row, Integer.MAX_VALUE);
@@ -31,8 +30,8 @@ public class FoodPathSolver implements PathSolver {
     public String findNextStep(int[][] board, Optional<int[]> targetOpt, int[] start) {
     
         int[] target = targetOpt.orElseGet(() -> findEmptyNeighbor(board, start));
-        
-        int[] nextPos = findPath(board, target, start).get(path.size() - 1);
+        List<int[]> path = findPath(board, target, start);
+        int[] nextPos = path.get(path.size() - 1);
         int y = nextPos[0] - start[0];
         int x = nextPos[1] - start[1];
         String nextStep;

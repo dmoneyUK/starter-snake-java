@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 public class SnakeHandler {
     
@@ -25,9 +26,12 @@ public class SnakeHandler {
     private static final Map<String, String> EMPTY = new HashMap<>();
     private static final Logger LOG = LoggerFactory.getLogger(Snake.class);
     private static final PathSolver pathSolver = new FoodPathSolver();
-    private static int[][] board;
+    private static Map<String, int[][]> boardMap = new HashMap<>();
     private static final int FOOD = 2;
     private static final int BLOCKED = 1;
+    
+    private Function<JsonNode, Integer> getX = (node) -> node.findValue("x").asInt() + 1;
+    private Function<JsonNode, Integer> getY = (node) -> node.findValue("y").asInt() + 1;
     
     /**
      * Generic processor that prints out the request and response from the methods.
@@ -79,9 +83,9 @@ public class SnakeHandler {
      */
     public Map<String, String> start(JsonNode startRequest) {
         
-        // init the board (2 more rows and columns for the borders.
-        initBoard(startRequest.get("board"));
-        
+        int[][] board = initBoard(startRequest.get("board"));
+        boardMap.put(getGameId(startRequest), board);
+    
         Map<String, String> response = new HashMap<>();
         response.put("color", "Hex-Color-Code-String");
         return response;
@@ -94,11 +98,14 @@ public class SnakeHandler {
      * @return a response back to the engine containing snake movement values.
      */
     public Map<String, String> move(JsonNode moveRequest) {
-        resetBoard();
-        int[] head = findSelfHead(moveRequest.get("you").findValue("body"));
-        Optional<int[]> food = markFood(moveRequest.findValue("food"));
-        markSankes(moveRequest.get("board").findValues("body"));
+        String gameId = getGameId(moveRequest);
+        int[][] board = boardMap.get(gameId);
+        resetBoard(board);
+        Optional<int[]> food = markFood(board, moveRequest.findValue("food"));
+        markSankes(board, moveRequest.findValue("snakes").findValues("body"));
         
+        int[] head = findSelfHead(moveRequest.get("you").findValue("body"));
+    
         String nextStep = pathSolver.findNextStep(board, food, head);
         
         Map<String, String> response = new HashMap<>();
@@ -117,15 +124,15 @@ public class SnakeHandler {
         return response;
     }
     
-    public int[][] getBoard() {
-        return board;
+    private int[][] initBoard(JsonNode boardNode) {
+        return new int[boardNode.get("width").asInt() + 2][boardNode.get("height").asInt() + 2];
     }
     
-    private void initBoard(JsonNode boardNode) {
-        board = new int[boardNode.get("width").asInt() + 2][boardNode.get("height").asInt() + 2];
+    private String getGameId(JsonNode startRequest) {
+        return startRequest.get("game").get("id").textValue();
     }
     
-    private void resetBoard() {
+    private int[][] resetBoard(int[][] board) {
         Arrays.fill(board[0], 1);
         Arrays.fill(board[board.length - 1], 1);
         for (int i = 1; i < board[0].length - 1; i++) {
@@ -133,40 +140,41 @@ public class SnakeHandler {
             board[i][0] = 1;
             board[i][board[0].length - 1] = 1;
         }
+        
+        return board;
     }
     
     private int[] findSelfHead(JsonNode body) {
-        JsonNode node = body.get(0);
-        int y = node.get("y").asInt() + 1;
-        int x = node.get("x").asInt() + 1;
+        int y = getY.apply(body);
+        int x = getX.apply(body);
         return new int[]{y, x};
     }
     
-    private void markSankes(List<JsonNode> snakes) {
+    private void markSankes(int[][] board, List<JsonNode> snakes) {
         snakes.parallelStream().forEach(body -> {
             int y;
             int x;
             for (int i = body.size() - 1; i >= 0; i--) {
                 JsonNode node = body.get(i);
-                y = node.get("y").asInt() + 1;
-                x = node.get("x").asInt() + 1;
-                markOccupied(y, x, BLOCKED);
+                y = node.findValue("y").asInt() + 1;
+                x = getX.apply(node);
+                markOccupied(board, y, x, BLOCKED);
             }
         });
     }
     
-    private void markOccupied(int y, int x, int reason) {
-        board[y][x] = reason;
-    }
-    
-    private Optional<int[]> markFood(JsonNode node) {
+    private Optional<int[]> markFood(int[][] board, JsonNode node) {
         Optional<int[]> food = Optional.empty();
         if (node.size() != 0) {
-            int y = node.findValue("y").asInt() + 1;
-            int x = node.findValue("x").asInt() + 1;
-            markOccupied(y, x, FOOD);
+            int y = getY.apply(node);
+            int x = getX.apply(node);
+            markOccupied(board, y, x, FOOD);
             food = Optional.of(new int[]{y, x});
         }
         return food;
+    }
+    
+    private void markOccupied(int[][] board, int y, int x, int reason) {
+        board[y][x] = reason;
     }
 }
