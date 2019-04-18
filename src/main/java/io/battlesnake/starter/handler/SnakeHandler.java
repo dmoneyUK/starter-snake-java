@@ -10,12 +10,14 @@ import org.slf4j.LoggerFactory;
 import spark.Request;
 import spark.Response;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
+
+import static io.battlesnake.starter.utils.GameBoardUtils.createGameBoard;
+import static io.battlesnake.starter.utils.GameBoardUtils.getVertex;
+import static io.battlesnake.starter.utils.GameBoardUtils.resetGameBoard;
 
 public class SnakeHandler {
     
@@ -26,13 +28,11 @@ public class SnakeHandler {
     private static final Map<String, String> EMPTY = new HashMap<>();
     private static final Logger LOG = LoggerFactory.getLogger(Snake.class);
     private static final PathSolver pathSolver = new FoodPathSolver();
-    private static Map<String, int[][]> boardMap = new HashMap<>();
+    
     private static final int FOOD = 2;
     private static final int BLOCKED = 1;
     
-    private Function<JsonNode, Integer> getX = (node) -> node.findValue("x").asInt() + 1;
-    private Function<JsonNode, Integer> getY = (node) -> node.findValue("y").asInt() + 1;
-    
+
     /**
      * Generic processor that prints out the request and response from the methods.
      *
@@ -82,10 +82,9 @@ public class SnakeHandler {
      * @return a response back to the engine containing the snake setup values.
      */
     public Map<String, String> start(JsonNode startRequest) {
-        
-        int[][] board = initBoard(startRequest.get("board"));
-        boardMap.put(getGameId(startRequest), board);
     
+        createGameBoard(startRequest);
+        
         Map<String, String> response = new HashMap<>();
         response.put("color", "Hex-Color-Code-String");
         return response;
@@ -98,11 +97,11 @@ public class SnakeHandler {
      * @return a response back to the engine containing snake movement values.
      */
     public Map<String, String> move(JsonNode moveRequest) {
-        String gameId = getGameId(moveRequest);
-        int[][] board = boardMap.get(gameId);
-        resetBoard(board);
-        Optional<int[]> food = markFood(board, moveRequest.findValue("food"));
+    
+        int[][] board = resetGameBoard(moveRequest);
+  
         markSankes(board, moveRequest.findValue("snakes").findValues("body"));
+        Optional<int[]> food = markFood(board, moveRequest.findValue("food"));
         
         int[] head = findSelfHead(moveRequest.get("you").findValue("body"));
     
@@ -124,30 +123,10 @@ public class SnakeHandler {
         return response;
     }
     
-    private int[][] initBoard(JsonNode boardNode) {
-        return new int[boardNode.get("width").asInt() + 2][boardNode.get("height").asInt() + 2];
-    }
     
-    private String getGameId(JsonNode startRequest) {
-        return startRequest.get("game").get("id").textValue();
-    }
-    
-    private int[][] resetBoard(int[][] board) {
-        Arrays.fill(board[0], 1);
-        Arrays.fill(board[board.length - 1], 1);
-        for (int i = 1; i < board[0].length - 1; i++) {
-            Arrays.fill(board[i], 0);
-            board[i][0] = 1;
-            board[i][board[0].length - 1] = 1;
-        }
-        
-        return board;
-    }
     
     private int[] findSelfHead(JsonNode body) {
-        int y = getY.apply(body);
-        int x = getX.apply(body);
-        return new int[]{y, x};
+        return getVertex(body);
     }
     
     private void markSankes(int[][] board, List<JsonNode> snakes) {
@@ -156,9 +135,8 @@ public class SnakeHandler {
             int x;
             for (int i = body.size() - 1; i >= 0; i--) {
                 JsonNode node = body.get(i);
-                y = node.findValue("y").asInt() + 1;
-                x = getX.apply(node);
-                markOccupied(board, y, x, BLOCKED);
+                int[] vertex = getVertex(node);
+                markOccupied(board, vertex, BLOCKED);
             }
         });
     }
@@ -166,15 +144,14 @@ public class SnakeHandler {
     private Optional<int[]> markFood(int[][] board, JsonNode node) {
         Optional<int[]> food = Optional.empty();
         if (node.size() != 0) {
-            int y = getY.apply(node);
-            int x = getX.apply(node);
-            markOccupied(board, y, x, FOOD);
-            food = Optional.of(new int[]{y, x});
+            int[] foodVertex = getVertex(node);
+            markOccupied(board, foodVertex, FOOD);
+            food = Optional.of(foodVertex);
         }
         return food;
     }
     
-    private void markOccupied(int[][] board, int y, int x, int reason) {
-        board[y][x] = reason;
+    private void markOccupied(int[][] board, int[] vertex, int reason) {
+        board[vertex[0]][vertex[1]] = reason;
     }
 }
