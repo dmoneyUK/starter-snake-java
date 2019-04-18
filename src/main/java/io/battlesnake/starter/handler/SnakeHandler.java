@@ -97,8 +97,8 @@ public class SnakeHandler {
     public Map<String, String> move(JsonNode moveRequest) {
     
         int[][] board = resetGameBoard(moveRequest);
-  
-        markSankes(board, moveRequest.findValue("snakes").findValues("body"));
+    
+        markSankes(board, moveRequest);
         List<int[]> foodList = markFood(board, moveRequest);
         
         int[] head = findSelfHead(moveRequest.get("you").findValue("body"));

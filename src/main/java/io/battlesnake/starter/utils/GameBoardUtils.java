@@ -2,12 +2,13 @@ package io.battlesnake.starter.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+
+import static java.util.stream.Collectors.toList;
 
 public class GameBoardUtils {
     
@@ -47,25 +48,23 @@ public class GameBoardUtils {
     }
     
     public static List<int[]> markFood(int[][] board, JsonNode request) {
-        List<int[]> allFood = new ArrayList<>();
-        if (!allFood.isEmpty()) {
-            List<JsonNode> foodNodes = request.findValues("food");
-            for (JsonNode node : foodNodes) {
-                int[] foodVertex = getVertex(node);
-                markOccupied(board, foodVertex, FOOD);
-                allFood.add(foodVertex);
-            }
-        }
-        return allFood;
+    
+        return request.findValues("food")
+                      .stream()
+                      .map((node) -> getVertex(node))
+                      .map(vertex -> markOccupied(board, vertex, FOOD))
+                      .collect(toList());
     }
     
-    public static void markSankes(int[][] board, List<JsonNode> snakes) {
+    public static void markSankes(int[][] board, JsonNode request) {
+        List<JsonNode> snakes = request.findValue("snakes").findValues("body");
+        
         snakes.parallelStream().forEach(body -> {
-            for (int i = body.size() - 1; i >= 0; i--) {
-                JsonNode node = body.get(i);
+            body.forEach((node) -> {
                 int[] vertex = getVertex(node);
                 markOccupied(board, vertex, BLOCKED);
-            }
+            });
+         
         });
     }
     
@@ -73,8 +72,9 @@ public class GameBoardUtils {
         return request.get("game").get("id").textValue();
     }
     
-    private static void markOccupied(int[][] board, int[] vertex, int reason) {
+    private static int[] markOccupied(int[][] board, int[] vertex, int reason) {
         board[vertex[0]][vertex[1]] = reason;
+        return vertex;
     }
     
 }
