@@ -99,11 +99,11 @@ public class SnakeHandler {
         int[][] board = resetGameBoard(moveRequest);
   
         markSankes(board, moveRequest.findValue("snakes").findValues("body"));
-        List<int[]> food = markFood(board, moveRequest);
+        List<int[]> foodList = markFood(board, moveRequest);
         
         int[] head = findSelfHead(moveRequest.get("you").findValue("body"));
     
-        String nextStep = pathSolver.findNextStep(board, food, head);
+        String nextStep = pathSolver.findNextStep(board, foodList, head);
         
         Map<String, String> response = new HashMap<>();
         response.put("move", nextStep);

@@ -48,11 +48,13 @@ public class GameBoardUtils {
     
     public static List<int[]> markFood(int[][] board, JsonNode request) {
         List<int[]> allFood = new ArrayList<>();
-        List<JsonNode> foodNodes = request.findValues("food");
-        for (JsonNode node : foodNodes) {
-            int[] foodVertex = getVertex(node);
-            markOccupied(board, foodVertex, FOOD);
-            allFood.add(foodVertex);
+        if (!allFood.isEmpty()) {
+            List<JsonNode> foodNodes = request.findValues("food");
+            for (JsonNode node : foodNodes) {
+                int[] foodVertex = getVertex(node);
+                markOccupied(board, foodVertex, FOOD);
+                allFood.add(foodVertex);
+            }
         }
         return allFood;
     }

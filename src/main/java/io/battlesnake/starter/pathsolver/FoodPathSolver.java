@@ -30,11 +30,16 @@ public class FoodPathSolver implements PathSolver {
     
     @Override
     public String findNextStep(int[][] board, List<int[]> foodList, int[] start) {
-    
-        List<int[]> path = findPath(board, foodList, start);
-        int[] nextPos = path.get(path.size() - 1);
+        int[] nextPos;
+        if (foodList.isEmpty()) {
+            nextPos = findEmptyNeighbor(board, start);
+        } else {
+            List<int[]> path = findPath(board, foodList, start);
+            nextPos = path.get(path.size() - 1);
+        }
         int y = nextPos[0] - start[0];
         int x = nextPos[1] - start[1];
+        
         String nextStep;
         if (y == -1 && x == 0) {
             nextStep = "up";
@@ -66,6 +71,18 @@ public class FoodPathSolver implements PathSolver {
             }
         }
     }
+    
+    private int[] findEmptyNeighbor(int[][] board, int[] start) {
+        for (int[] dir : dirs) {
+            int y = start[0] + dir[0];
+            int x = start[1] + dir[1];
+            if (board[y][x] == 0) {
+                return new int[]{y, x};
+            }
+        }
+        throw new RuntimeException("Trapped!!!");
+    }
+    
     
     private int[] findCloestFood(List<int[]> foodList, int[][] distance) {
         
