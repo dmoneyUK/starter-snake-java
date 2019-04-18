@@ -1,36 +1,37 @@
 package io.battlesnake.starter.pathsolver;
 
-import io.battlesnake.starter.utils.PrintingUtils;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 public class FoodPathSolver implements PathSolver {
     
     private static int[][] dirs = {{1, 0}, {-1, 0}, {0, -1}, {0, 1}};
     
     @Override
-    public List<int[]> findPath(int[][] board, int[] target, int[] start) {
+    public List<int[]> findPath(int[][] board, List<int[]> foodList, int[] start) {
         List<int[]> path;
         int[][] distance = new int[board.length][board[0].length];
         for (int[] row : distance)
             Arrays.fill(row, Integer.MAX_VALUE);
         distance[start[0]][start[1]] = 0;
-        findPathDfs(board, target, start, distance);
+    
+        calculateDistanceDFS(board, start, distance);
+    
+        int[] target = findCloestFood(foodList, distance);
+        
         path = backTrack(target, distance);
-        PrintingUtils.printBoard(distance);
-        PrintingUtils.printPath(path);
-        PrintingUtils.printVertex(start);
+    
+        //PrintingUtils.printBoard(distance);
+        //PrintingUtils.printPath(path);
+        //PrintingUtils.printVertex(start);
         return path;
     }
     
     @Override
-    public String findNextStep(int[][] board, Optional<int[]> targetOpt, int[] start) {
+    public String findNextStep(int[][] board, List<int[]> foodList, int[] start) {
     
-        int[] target = targetOpt.orElseGet(() -> findEmptyNeighbor(board, start));
-        List<int[]> path = findPath(board, target, start);
+        List<int[]> path = findPath(board, foodList, start);
         int[] nextPos = path.get(path.size() - 1);
         int y = nextPos[0] - start[0];
         int x = nextPos[1] - start[1];
@@ -47,28 +48,13 @@ public class FoodPathSolver implements PathSolver {
         return nextStep;
     }
     
-    private int[] findEmptyNeighbor(int[][] board, int[] start) {
-        for (int[] dir : dirs) {
-            int y = start[0] + dir[0];
-            int x = start[1] + dir[1];
-            if (board[y][x] == 0) {
-                return new int[]{y, x};
-            }
-        }
-        throw new RuntimeException("Trapped!!!");
-    }
-    
-    private void findPathDfs(int[][] board, int[] target, int[] start, int[][] distance) {
+    private void calculateDistanceDFS(int[][] board, int[] start, int[][] distance) {
         
         for (int[] dir : dirs) {
             int y = start[0] + dir[0];
             int x = start[1] + dir[1];
             int count = 0;
-            //while (board[y][x] == 0) {
-            //    y += dir[0];
-            //    x += dir[1];
-            //    count++;
-            //}
+    
             if (board[y][x] != 1) {
                 y += dir[0];
                 x += dir[1];
@@ -76,10 +62,26 @@ public class FoodPathSolver implements PathSolver {
             }
             if (distance[y - dir[0]][x - dir[1]] > distance[start[0]][start[1]] + count) {
                 distance[y - dir[0]][x - dir[1]] = distance[start[0]][start[1]] + count;
-                findPathDfs(board, target, new int[]{y - dir[0], x - dir[1]}, distance);
+                calculateDistanceDFS(board, new int[]{y - dir[0], x - dir[1]}, distance);
             }
         }
     }
+    
+    private int[] findCloestFood(List<int[]> foodList, int[][] distance) {
+        
+        int[] ans = null;
+        int min = Integer.MAX_VALUE;
+        int dis;
+        for (int[] food : foodList) {
+            dis = distance[food[0]][food[1]];
+            if (dis < min) {
+                min = dis;
+                ans = food;
+            }
+        }
+        return ans;
+    }
+    
     
     private List<int[]> backTrack(int[] target, int[][] distance) {
         int dis = distance[target[0]][target[1]];
