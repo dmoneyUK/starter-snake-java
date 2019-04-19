@@ -3,6 +3,7 @@ package io.battlesnake.starter.utils;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,9 +50,11 @@ public class GameBoardUtils {
     
     public static List<int[]> markFood(int[][] board, JsonNode request) {
     
-        List<JsonNode> food = request.findValues("food");
-        System.out.println(food);
-        return food.stream()
+        List<JsonNode> foodList = request.findValues("food");
+        if (foodList.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return foodList.stream()
                       .map((node) -> getVertex(node))
                       .map(vertex -> markOccupied(board, vertex, FOOD))
                       .collect(toList());
