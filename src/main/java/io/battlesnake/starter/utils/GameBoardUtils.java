@@ -51,14 +51,13 @@ public class GameBoardUtils {
     
     public static List<int[]> markFood(int[][] board, JsonNode request) {
     
-        List<JsonNode> foodList = Optional.of(request.findValues("food"))
-                                          .orElse(emptyList());
-    
-        return foodList.stream()
-                       .filter(node -> node.textValue() != null)
-                       .map((node) -> getVertex(node))
-                       .map(vertex -> markOccupied(board, vertex, FOOD))
-                       .collect(toList());
+        Optional.of(request.findValues("food"))
+                .orElse(emptyList())
+                .stream()
+                .filter(node -> node.textValue() != null)
+                .map((node) -> getVertex(node))
+                .map(vertex -> markOccupied(board, vertex, FOOD))
+                .collect(toList());
     }
     
     public static void markSankes(int[][] board, JsonNode request) {
