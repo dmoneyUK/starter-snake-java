@@ -51,7 +51,7 @@ public class GameBoardUtils {
     
     public static List<int[]> markFood(int[][] board, JsonNode request) {
     
-        Optional.of(request.findValues("food"))
+        return Optional.of(request.findValues("food"))
                 .orElse(emptyList())
                 .stream()
                 .filter(node -> node.textValue() != null)
