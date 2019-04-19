@@ -49,8 +49,9 @@ public class GameBoardUtils {
     
     public static List<int[]> markFood(int[][] board, JsonNode request) {
     
-        return request.findValues("food")
-                      .stream()
+        List<JsonNode> food = request.findValues("food");
+        System.out.println(food);
+        food.stream()
                       .map((node) -> getVertex(node))
                       .map(vertex -> markOccupied(board, vertex, FOOD))
                       .collect(toList());
