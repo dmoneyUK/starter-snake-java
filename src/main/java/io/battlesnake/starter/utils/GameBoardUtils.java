@@ -51,7 +51,9 @@ public class GameBoardUtils {
     public static List<int[]> markFood(int[][] board, JsonNode request) {
     
         List<JsonNode> foodList = request.findValues("food");
+        System.out.println("Food is: "+ foodList);
         if (foodList.isEmpty()) {
+            System.out.println("Food is empty");
             return Collections.emptyList();
         }
         return foodList.stream()
