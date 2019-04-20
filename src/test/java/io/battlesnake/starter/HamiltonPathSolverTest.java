@@ -58,14 +58,14 @@ class HamiltonPathSolverTest {
     }
     
     
-    @Test
-    public void shouldReturnTrueWhenSafe() {
-        int[] path = {2, 0, 1, 2};
-        testObj = new HamiltonPathSolver(4);
-        boolean actual = testObj.hamiltonCircleSearch(GRAPH_WITH_HC, path, 3);
-        assertThat(actual).isTrue();
-    }
-    
+    //@Test
+    //public void shouldReturnTrueWhenSafe() {
+    //    int[] path = {2, 0, 1, 2};
+    //    testObj = new HamiltonPathSolver(4);
+    //    boolean actual = testObj.hamiltonCircleSearch(GRAPH_WITH_HC, path, 3);
+    //    assertThat(actual).isTrue();
+    //}
+    //
     
     @Test
     public void shouldReturnFalseWhenNoEdgeFromPosToVertex() {

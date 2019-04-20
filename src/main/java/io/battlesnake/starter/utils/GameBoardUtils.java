@@ -1,6 +1,7 @@
 package io.battlesnake.starter.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import io.battlesnake.starter.model.Vertex;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,8 +33,11 @@ public class GameBoardUtils {
         return board;
     };
     
-    public static int[] getVertex(JsonNode node) {
-        return new int[]{node.findValue("y").asInt() + 1, node.findValue("x").asInt() + 1};
+    public static Vertex getVertex(JsonNode node) {
+        return Vertex.builder()
+                     .row(node.findValue("y").asInt() + 1)
+                     .column(node.findValue("x").asInt() + 1)
+                     .build();
     }
     
     public static int[][] resetGameBoard(JsonNode request) {
@@ -47,12 +51,12 @@ public class GameBoardUtils {
         boardMap.put(getGameId(request), gameBoard);
     }
     
-    public static List<int[]> markFood(int[][] board, JsonNode request) {
+    public static List<Vertex> markFood(int[][] board, JsonNode request) {
     
         Iterator<JsonNode> foodIt = request.findValue("food").elements();
-        List<int[]> foodList = new ArrayList<>();
+        List<Vertex> foodList = new ArrayList<>();
         while (foodIt.hasNext()) {
-            int[] vertex = getVertex(foodIt.next());
+            Vertex vertex = getVertex(foodIt.next());
             markOccupied(board, vertex, FOOD);
             foodList.add(vertex);
         }
@@ -64,7 +68,7 @@ public class GameBoardUtils {
         
         snakes.parallelStream().forEach(body -> {
             body.forEach((node) -> {
-                int[] vertex = getVertex(node);
+                Vertex vertex = getVertex(node);
                 markOccupied(board, vertex, BLOCKED);
             });
          
@@ -75,8 +79,8 @@ public class GameBoardUtils {
         return request.get("game").get("id").textValue();
     }
     
-    private static int[] markOccupied(int[][] board, int[] vertex, int reason) {
-        board[vertex[0]][vertex[1]] = reason;
+    private static Vertex markOccupied(int[][] board, Vertex vertex, int reason) {
+        board[vertex.getRow()][vertex.getColumn()] = reason;
         return vertex;
     }
     

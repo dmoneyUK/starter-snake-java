@@ -10,7 +10,7 @@ import static spark.Spark.port;
 import static spark.Spark.post;
 
 /**
- * Snake server that deals with requests from the snake engine.
+ * SnakeModel server that deals with requests from the snake engine.
  * Just boiler plate code.  See the readme to get started.
  * It follows the spec here: https://github.com/battlesnakeio/docs/tree/master/apis/snake
  */

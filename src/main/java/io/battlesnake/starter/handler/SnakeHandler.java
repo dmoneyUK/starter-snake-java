@@ -3,6 +3,7 @@ package io.battlesnake.starter.handler;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.battlesnake.starter.Snake;
+import io.battlesnake.starter.model.Vertex;
 import io.battlesnake.starter.pathsolver.FoodPathSolver;
 import io.battlesnake.starter.pathsolver.PathSolver;
 import org.slf4j.Logger;
@@ -98,9 +99,9 @@ public class SnakeHandler {
     
         int[][] board = resetGameBoard(moveRequest);
         markSankes(board, moveRequest);
-        List<int[]> foodList = markFood(board, moveRequest);
+        List<Vertex> foodList = markFood(board, moveRequest);
     
-        int[] head = findSelfHead(moveRequest.get("you").findValue("body"));
+        Vertex head = findSelfHead(moveRequest.get("you").findValue("body"));
         //PrintingUtils.printBoard(board);
     
         String nextStep = pathSolver.findNextStep(board, foodList, head);
@@ -121,7 +122,7 @@ public class SnakeHandler {
         return response;
     }
     
-    private int[] findSelfHead(JsonNode body) {
+    private Vertex findSelfHead(JsonNode body) {
         return getVertex(body);
     }
     
