@@ -18,7 +18,7 @@ public class FoodPathSolver implements PathSolver {
     
         calculateDistanceDFS(board, start, distance);
     
-        int[] target = findCloestFood(foodList, distance);
+        int[] target = findNearestFood(foodList, distance);
         
         path = backTrack(target, distance);
     
@@ -83,8 +83,7 @@ public class FoodPathSolver implements PathSolver {
         throw new RuntimeException("Trapped!!!");
     }
     
-    
-    private int[] findCloestFood(List<int[]> foodList, int[][] distance) {
+    private int[] findNearestFood(List<int[]> foodList, int[][] distance) {
         
         int[] ans = null;
         int min = Integer.MAX_VALUE;

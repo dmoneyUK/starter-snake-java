@@ -97,11 +97,11 @@ public class SnakeHandler {
     public Map<String, String> move(JsonNode moveRequest) {
     
         int[][] board = resetGameBoard(moveRequest);
-    
         markSankes(board, moveRequest);
         List<int[]> foodList = markFood(board, moveRequest);
-        
+    
         int[] head = findSelfHead(moveRequest.get("you").findValue("body"));
+        //PrintingUtils.printBoard(board);
     
         String nextStep = pathSolver.findNextStep(board, foodList, head);
         
