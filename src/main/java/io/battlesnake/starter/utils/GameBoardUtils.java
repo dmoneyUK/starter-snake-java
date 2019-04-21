@@ -3,15 +3,14 @@ package io.battlesnake.starter.utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.battlesnake.starter.model.GameBoard;
 import io.battlesnake.starter.model.Snake;
 import io.battlesnake.starter.model.Vertex;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
 
 public class GameBoardUtils {
@@ -20,13 +19,25 @@ public class GameBoardUtils {
     private static final int BLOCKED = 1;
     private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
     
+    private static Function<JsonNode, GameBoard> gameBoardCreateFn = (request) -> {
+        JsonNode boardNode = request.get("board");
+        GameBoard gameBoard = null;
+        try {
+            gameBoard = GameBoard.builder()
+                                 .board(new int[boardNode.get("width").asInt() + 2][boardNode.get("height").asInt() + 2])
+                                 .foodList(getFoodList(request))
+                                 .snakes(findSnakes(request))
+                                 .me(findSelfHead(request))
+                                 .build();
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return gameBoard;
+    };
     
-    private static Map<String, int[][]> boardMap = new HashMap<>();
-    
-    private static Function<JsonNode, int[][]> boardFetchFn = (request) -> boardMap.get(getGameId(request));
-    
-    private static Function<int[][], int[][]> boardResetFn = (board) -> {
+    private static Function<GameBoard, GameBoard> borderMarkFn = (gameBoard) -> {
         //TODO: try async for the works
+        int[][] board = gameBoard.getBoard();
         Arrays.fill(board[0], 1);
         Arrays.fill(board[board.length - 1], 1);
         for (int i = 1; i < board[0].length - 1; i++) {
@@ -35,51 +46,59 @@ public class GameBoardUtils {
             board[i][board[0].length - 1] = 1;
         }
         
-        return board;
+        return gameBoard;
     };
     
-    public static int[][] resetGameBoard(JsonNode request) {
-        return boardFetchFn.andThen(boardResetFn).apply(request);
+    private static Function<GameBoard, GameBoard> snakesMarkFn = gameBoard -> {
+        gameBoard.getSnakes()
+                 .parallelStream()
+                 .forEach(snake -> snake.getBody()
+                                        .parallelStream()
+                                        .forEach((Vertex vertex) -> markOccupied(gameBoard.getBoard(), vertex, BLOCKED)));
+        return gameBoard;
+    };
+    
+    private static Function<GameBoard, GameBoard> foodMarkFn = gameBoard -> {
+        gameBoard.getFoodList()
+                 .parallelStream()
+                 .forEach(food -> markOccupied(gameBoard.getBoard(), food, FOOD));
+        return gameBoard;
+    };
+    
+    public static GameBoard initGameBoard(JsonNode request) {
+        
+        return gameBoardCreateFn
+                .andThen(borderMarkFn)
+                .andThen(snakesMarkFn)
+                .andThen(foodMarkFn)
+                .apply(request);
     }
     
-    public static void createGameBoard(JsonNode request) {
-        JsonNode boardNode = request.get("board");
-        int[][] gameBoard = new int[boardNode.get("width").asInt() + 2][boardNode.get("height").asInt() + 2];
-        boardMap.put(getGameId(request), gameBoard);
-    }
-    
-    public static void removeGameBoard(JsonNode request) {
-        boardMap.remove(getGameId(request));
-    }
-    
-    public static List<Vertex> markFood(int[][] board, JsonNode request) throws JsonProcessingException {
-    
-        Iterator<JsonNode> foodIt = request.findValue("food").elements();
+    private static List<Vertex> getFoodList(JsonNode request) throws JsonProcessingException {
         
         List<Vertex> foodList = new ArrayList<>();
+        Iterator<JsonNode> foodIt = request.findValue("food").elements();
+        
         while (foodIt.hasNext()) {
             Vertex vertex = JSON_MAPPER.treeToValue(foodIt.next(), Vertex.class);
-            markOccupied(board, vertex, FOOD);
             foodList.add(vertex);
         }
         return foodList;
     }
     
-    public static void markSnakes(int[][] board, JsonNode request) throws JsonProcessingException {
+    private static List<Snake> findSnakes(JsonNode request) throws JsonProcessingException {
         
-        //TODO: try async tasks to mark all snakes
-        Iterator<JsonNode> snakeNodes = request.findValue("snakes").elements();
+        List<Snake> snakes = new ArrayList<>();
+        Iterator<JsonNode> snakeIt = request.findValue("snakes").elements();
         
-        while (snakeNodes.hasNext()) {
-            JSON_MAPPER.treeToValue(snakeNodes.next(), Snake.class)
-                       .getBody()
-                       .parallelStream()
-                       .forEach(vertex -> markOccupied(board, vertex, BLOCKED));
+        while (snakeIt.hasNext()) {
+            snakes.add(JSON_MAPPER.treeToValue(snakeIt.next(), Snake.class));
         }
+        return snakes;
     }
     
-    private static String getGameId(JsonNode request) {
-        return request.get("game").get("id").textValue();
+    public static Vertex findSelfHead(JsonNode request) throws JsonProcessingException {
+        return JSON_MAPPER.treeToValue(request.get("you").findValue("body").get(0), Vertex.class);
     }
     
     private static Vertex markOccupied(int[][] board, Vertex vertex, int reason) {

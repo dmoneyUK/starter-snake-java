@@ -1,5 +1,6 @@
 package io.battlesnake.starter.pathsolver;
 
+import io.battlesnake.starter.model.GameBoard;
 import io.battlesnake.starter.model.Vertex;
 
 import java.util.ArrayList;
@@ -11,7 +12,6 @@ public class FoodPathSolver implements PathSolver {
     
     private static int[][] dirs = {{1, 0}, {-1, 0}, {0, -1}, {0, 1}};
     
-    @Override
     public List<Vertex> findPath(int[][] board, List<Vertex> foodList, Vertex snakeHead) {
         List<Vertex> path;
         int[][] distance = createDistanceBoard(board.length);
@@ -43,16 +43,16 @@ public class FoodPathSolver implements PathSolver {
     //}
     
     @Override
-    public String findNextStep(int[][] board, List<Vertex> foodList, Vertex start) {
+    public String findNextStep(GameBoard gameBoard) {
         Vertex nextPos;
-        if (foodList.isEmpty()) {
-            nextPos = findEmptyNeighbor(board, start);
+        if (gameBoard.getFoodList().isEmpty()) {
+            nextPos = findEmptyNeighbor(gameBoard.getBoard(), gameBoard.getMe());
         } else {
-            List<Vertex> path = findPath(board, foodList, start);
+            List<Vertex> path = findPath(gameBoard.getBoard(), gameBoard.getFoodList(), gameBoard.getMe());
             nextPos = path.get(path.size() - 1);
         }
-        int y = nextPos.getRow() - start.getRow();
-        int x = nextPos.getColumn() - start.getColumn();
+        int y = nextPos.getRow() - gameBoard.getMe().getRow();
+        int x = nextPos.getColumn() - gameBoard.getMe().getColumn();
         
         String nextStep;
         if (y == -1 && x == 0) {
@@ -70,18 +70,18 @@ public class FoodPathSolver implements PathSolver {
     private void calculateDistanceDFS(int[][] board, Vertex start, int[][] distance) {
         
         for (int[] dir : dirs) {
-            int y = start.getRow() + dir[0];
-            int x = start.getColumn() + dir[1];
+            int row = start.getRow() + dir[0];
+            int column = start.getColumn() + dir[1];
             int count = 0;
     
-            if (board[y][x] != 1) {
-                y += dir[0];
-                x += dir[1];
+            if (board[row][column] != 1) {
+                row += dir[0];
+                column += dir[1];
                 count++;
             }
-            if (distance[y - dir[0]][x - dir[1]] > distance[start.getRow()][start.getColumn()] + count) {
-                distance[y - dir[0]][x - dir[1]] = distance[start.getRow()][start.getColumn()] + count;
-                calculateDistanceDFS(board, Vertex.builder().row(y - dir[0]).column(x - dir[1]).build(), distance);
+            if (distance[row - dir[0]][column - dir[1]] > distance[start.getRow()][start.getColumn()] + count) {
+                distance[row - dir[0]][column - dir[1]] = distance[start.getRow()][start.getColumn()] + count;
+                calculateDistanceDFS(board, Vertex.builder().row(row - dir[0]).column(column - dir[1]).build(), distance);
             }
         }
     }
