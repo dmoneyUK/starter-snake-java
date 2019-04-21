@@ -1,11 +1,13 @@
 package io.battlesnake.starter.handler;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.battlesnake.starter.Snake;
+import io.battlesnake.starter.SnakeApp;
 import io.battlesnake.starter.model.Vertex;
 import io.battlesnake.starter.pathsolver.FoodPathSolver;
 import io.battlesnake.starter.pathsolver.PathSolver;
+import io.battlesnake.starter.utils.PrintingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -16,9 +18,9 @@ import java.util.List;
 import java.util.Map;
 
 import static io.battlesnake.starter.utils.GameBoardUtils.createGameBoard;
-import static io.battlesnake.starter.utils.GameBoardUtils.getVertex;
 import static io.battlesnake.starter.utils.GameBoardUtils.markFood;
-import static io.battlesnake.starter.utils.GameBoardUtils.markSankes;
+import static io.battlesnake.starter.utils.GameBoardUtils.markSnakes;
+import static io.battlesnake.starter.utils.GameBoardUtils.removeGameBoard;
 import static io.battlesnake.starter.utils.GameBoardUtils.resetGameBoard;
 
 public class SnakeHandler {
@@ -28,7 +30,7 @@ public class SnakeHandler {
      */
     private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
     private static final Map<String, String> EMPTY = new HashMap<>();
-    private static final Logger LOG = LoggerFactory.getLogger(Snake.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SnakeApp.class);
     private static final PathSolver pathSolver = new FoodPathSolver();
     
 
@@ -95,14 +97,14 @@ public class SnakeHandler {
      * @param moveRequest a map containing the JSON sent to this snake. See the spec for details of what this contains.
      * @return a response back to the engine containing snake movement values.
      */
-    public Map<String, String> move(JsonNode moveRequest) {
+    public Map<String, String> move(JsonNode moveRequest) throws JsonProcessingException {
     
         int[][] board = resetGameBoard(moveRequest);
-        markSankes(board, moveRequest);
+        markSnakes(board, moveRequest);
         List<Vertex> foodList = markFood(board, moveRequest);
     
         Vertex head = findSelfHead(moveRequest.get("you").findValue("body"));
-        //PrintingUtils.printBoard(board);
+        PrintingUtils.printBoard(board);
     
         String nextStep = pathSolver.findNextStep(board, foodList, head);
         
@@ -118,12 +120,13 @@ public class SnakeHandler {
      * @return responses back to the engine are ignored.
      */
     public Map<String, String> end(JsonNode endRequest) {
+        removeGameBoard(endRequest);
         Map<String, String> response = new HashMap<>();
         return response;
     }
     
-    private Vertex findSelfHead(JsonNode body) {
-        return getVertex(body);
+    private Vertex findSelfHead(JsonNode body) throws JsonProcessingException {
+        return JSON_MAPPER.treeToValue(body.get(0), Vertex.class);
     }
     
 }

@@ -12,7 +12,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class SnakeTest {
+public class SnakeAppTest {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     static {

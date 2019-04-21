@@ -10,14 +10,14 @@ import static spark.Spark.port;
 import static spark.Spark.post;
 
 /**
- * SnakeModel server that deals with requests from the snake engine.
+ * Snake server that deals with requests from the snake engine.
  * Just boiler plate code.  See the readme to get started.
  * It follows the spec here: https://github.com/battlesnakeio/docs/tree/master/apis/snake
  */
-public class Snake {
+public class SnakeApp {
     private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
     private static final SnakeHandler HANDLER = new SnakeHandler();
-    private static final Logger LOG = LoggerFactory.getLogger(Snake.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SnakeApp.class);
     
     /**
      * Main entry point.
