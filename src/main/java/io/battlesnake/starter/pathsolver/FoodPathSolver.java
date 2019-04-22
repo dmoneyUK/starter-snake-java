@@ -1,24 +1,25 @@
 package io.battlesnake.starter.pathsolver;
 
+import io.battlesnake.starter.model.GameBoard;
+import io.battlesnake.starter.model.Vertex;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+
+import static io.battlesnake.starter.utils.DistanceBoardUtils.createDistanceBoard;
 
 public class FoodPathSolver implements PathSolver {
     
     private static int[][] dirs = {{1, 0}, {-1, 0}, {0, -1}, {0, 1}};
     
-    @Override
-    public List<int[]> findPath(int[][] board, List<int[]> foodList, int[] start) {
-        List<int[]> path;
-        int[][] distance = new int[board.length][board[0].length];
-        for (int[] row : distance)
-            Arrays.fill(row, Integer.MAX_VALUE);
-        distance[start[0]][start[1]] = 0;
+    public List<Vertex> findPath(int[][] board, List<Vertex> foodList, Vertex snakeHead) {
+        List<Vertex> path;
+        int[][] distance = createDistanceBoard(board.length);
+        distance[snakeHead.getRow()][snakeHead.getColumn()] = 0;
     
-        calculateDistanceDFS(board, start, distance);
+        calculateDistanceDFS(board, snakeHead, distance);
     
-        int[] target = findNearestFood(foodList, distance);
+        Vertex target = findNearestFood(foodList, distance);
         
         path = backTrack(target, distance);
     
@@ -27,18 +28,31 @@ public class FoodPathSolver implements PathSolver {
         //PrintingUtils.printVertex(start);
         return path;
     }
+    //
+    //@Override
+    //public Map<String, int[][]> calculateDistanceForAllSnakes(int[][] board, List<int[]> foodList, Map<String, int[]> snakeHeads) {
+    //    Map<String, int[][]> snakesDistanceMap = new HashMap<>();
+    //    snakeHeads.forEach((name, head) -> {
+    //        int[][] distanceBoard = createDistanceBoard(board.length);
+    //        calculateDistanceDFS(board, head, distanceBoard);
+    //        snakesDistanceMap.put(name, distanceBoard);
+    //
+    //    });
+    //
+    //    return snakesDistanceMap;
+    //}
     
     @Override
-    public String findNextStep(int[][] board, List<int[]> foodList, int[] start) {
-        int[] nextPos;
-        if (foodList.isEmpty()) {
-            nextPos = findEmptyNeighbor(board, start);
+    public String findNextStep(GameBoard gameBoard) {
+        Vertex nextPos;
+        if (gameBoard.getFoodList().isEmpty()) {
+            nextPos = findEmptyNeighbor(gameBoard.getBoard(), gameBoard.getMe());
         } else {
-            List<int[]> path = findPath(board, foodList, start);
+            List<Vertex> path = findPath(gameBoard.getBoard(), gameBoard.getFoodList(), gameBoard.getMe());
             nextPos = path.get(path.size() - 1);
         }
-        int y = nextPos[0] - start[0];
-        int x = nextPos[1] - start[1];
+        int y = nextPos.getRow() - gameBoard.getMe().getRow();
+        int x = nextPos.getColumn() - gameBoard.getMe().getColumn();
         
         String nextStep;
         if (y == -1 && x == 0) {
@@ -53,43 +67,43 @@ public class FoodPathSolver implements PathSolver {
         return nextStep;
     }
     
-    private void calculateDistanceDFS(int[][] board, int[] start, int[][] distance) {
+    private void calculateDistanceDFS(int[][] board, Vertex start, int[][] distance) {
         
         for (int[] dir : dirs) {
-            int y = start[0] + dir[0];
-            int x = start[1] + dir[1];
+            int row = start.getRow() + dir[0];
+            int column = start.getColumn() + dir[1];
             int count = 0;
     
-            if (board[y][x] != 1) {
-                y += dir[0];
-                x += dir[1];
+            if (board[row][column] != 1) {
+                row += dir[0];
+                column += dir[1];
                 count++;
             }
-            if (distance[y - dir[0]][x - dir[1]] > distance[start[0]][start[1]] + count) {
-                distance[y - dir[0]][x - dir[1]] = distance[start[0]][start[1]] + count;
-                calculateDistanceDFS(board, new int[]{y - dir[0], x - dir[1]}, distance);
+            if (distance[row - dir[0]][column - dir[1]] > distance[start.getRow()][start.getColumn()] + count) {
+                distance[row - dir[0]][column - dir[1]] = distance[start.getRow()][start.getColumn()] + count;
+                calculateDistanceDFS(board, Vertex.builder().row(row - dir[0]).column(column - dir[1]).build(), distance);
             }
         }
     }
     
-    private int[] findEmptyNeighbor(int[][] board, int[] start) {
+    private Vertex findEmptyNeighbor(int[][] board, Vertex start) {
         for (int[] dir : dirs) {
-            int y = start[0] + dir[0];
-            int x = start[1] + dir[1];
+            int y = start.getRow() + dir[0];
+            int x = start.getColumn() + dir[1];
             if (board[y][x] == 0) {
-                return new int[]{y, x};
+                return Vertex.builder().row(y).column(x).build();
             }
         }
         throw new RuntimeException("Trapped!!!");
     }
     
-    private int[] findNearestFood(List<int[]> foodList, int[][] distance) {
+    private Vertex findNearestFood(List<Vertex> foodList, int[][] distance) {
         
-        int[] ans = null;
+        Vertex ans = null;
         int min = Integer.MAX_VALUE;
         int dis;
-        for (int[] food : foodList) {
-            dis = distance[food[0]][food[1]];
+        for (Vertex food : foodList) {
+            dis = distance[food.getRow()][food.getColumn()];
             if (dis < min) {
                 min = dis;
                 ans = food;
@@ -98,23 +112,22 @@ public class FoodPathSolver implements PathSolver {
         return ans;
     }
     
-    
-    private List<int[]> backTrack(int[] target, int[][] distance) {
-        int dis = distance[target[0]][target[1]];
+    private List<Vertex> backTrack(Vertex target, int[][] distance) {
+        int dis = distance[target.getRow()][target.getColumn()];
         if (dis == Integer.MAX_VALUE) {
             return null;
         }
-        int y = target[0];
-        int x = target[1];
-        List<int[]> path = new ArrayList<>();
-        path.add(new int[]{y, x});
+        int y = target.getRow();
+        int x = target.getColumn();
+        List<Vertex> path = new ArrayList<>();
+        path.add(Vertex.builder().row(y).column(x).build());
         while (dis > 1) {
             dis--;
             for (int[] dir : dirs) {
                 if (distance[y - dir[0]][x - dir[1]] == dis) {
                     y -= dir[0];
                     x -= dir[1];
-                    path.add(new int[]{y, x});
+                    path.add(Vertex.builder().row(y).column(x).build());
                     break;
                 }
             }
