@@ -1,60 +1,60 @@
 package io.battlesnake.starter.pathsolver;
 
 import io.battlesnake.starter.model.GameBoard;
+import io.battlesnake.starter.model.Snake;
 import io.battlesnake.starter.model.Vertex;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static io.battlesnake.starter.utils.DistanceBoardUtils.createDistanceBoard;
+import static io.battlesnake.starter.utils.DistanceBoardUtils.getDistance;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
 
 public class FoodPathSolver implements PathSolver {
     
     private static int[][] dirs = {{1, 0}, {-1, 0}, {0, -1}, {0, 1}};
     
-    public List<Vertex> findPath(int[][] board, List<Vertex> foodList, Vertex snakeHead) {
-        List<Vertex> path;
-        int[][] distance = createDistanceBoard(board.length);
-        distance[snakeHead.getRow()][snakeHead.getColumn()] = 0;
-    
-        calculateDistanceDFS(board, snakeHead, distance);
-    
-        Vertex target = findNearestFood(foodList, distance);
-        
-        path = backTrack(target, distance);
-    
-        //PrintingUtils.printBoard(distance);
-        //PrintingUtils.printPath(path);
-        //PrintingUtils.printVertex(start);
-        return path;
-    }
-    //
-    //@Override
-    //public Map<String, int[][]> calculateDistanceForAllSnakes(int[][] board, List<int[]> foodList, Map<String, int[]> snakeHeads) {
-    //    Map<String, int[][]> snakesDistanceMap = new HashMap<>();
-    //    snakeHeads.forEach((name, head) -> {
-    //        int[][] distanceBoard = createDistanceBoard(board.length);
-    //        calculateDistanceDFS(board, head, distanceBoard);
-    //        snakesDistanceMap.put(name, distanceBoard);
-    //
-    //    });
-    //
-    //    return snakesDistanceMap;
-    //}
+    private Function<Snake, Vertex> getSnakeHeadFn = snake -> snake.getBody().get(0);
     
     @Override
     public String findNextStep(GameBoard gameBoard) {
+        Vertex me = gameBoard.getMe();
+        Vertex nextPos = findNextVertex(gameBoard, me);
+        return findNextMovment(me, nextPos);
+    }
+    
+    // Find the location ( a vertex) to move to.
+    private Vertex findNextVertex(GameBoard gameBoard, Vertex me) {
         Vertex nextPos;
-        if (gameBoard.getFoodList().isEmpty()) {
-            nextPos = findEmptyNeighbor(gameBoard.getBoard(), gameBoard.getMe());
+        if (noFoodOnGameBoard(gameBoard)) {
+            // Food has not be generated in the round when it is eaten, move to any safe place.
+            nextPos = findEmptyNeighbor(gameBoard.getBoard(), me);
         } else {
-            List<Vertex> path = findPath(gameBoard.getBoard(), gameBoard.getFoodList(), gameBoard.getMe());
+            // Calculate the distance board for all snakes and then try to find the food
+            // which is closer to me than others. ( may not be the closest to me).
+            Map<Vertex, int[][]> snakesDistanceMap = getAllSnakesDistanceBoards(gameBoard);
+            int[][] myDistanceBoard = snakesDistanceMap.get(me);
+            Vertex target = findFoodCloserToMeThanOthers(gameBoard.getFoodList(), snakesDistanceMap, me);
+            
+            // back track to draw the path to the food closer to me and take the first step in the path.
+            List<Vertex> path = backTrack(target, myDistanceBoard);
             nextPos = path.get(path.size() - 1);
         }
-        int y = nextPos.getRow() - gameBoard.getMe().getRow();
-        int x = nextPos.getColumn() - gameBoard.getMe().getColumn();
+        return nextPos;
+    }
+    
+    // calculate next movement direction based on the next location to move to and current location.
+    private String findNextMovment(Vertex me, Vertex nextPos) {
+        int y = nextPos.getRow() - me.getRow();
+        int x = nextPos.getColumn() - me.getColumn();
         
         String nextStep;
+        
         if (y == -1 && x == 0) {
             nextStep = "up";
         } else if (y == 1 && x == 0) {
@@ -65,6 +65,28 @@ public class FoodPathSolver implements PathSolver {
             nextStep = "left";
         }
         return nextStep;
+    }
+    
+    private Map<Vertex, int[][]> getAllSnakesDistanceBoards(GameBoard gameBoard) {
+        return gameBoard.getSnakes()
+                        .parallelStream()
+                        .map(getSnakeHeadFn)
+                        .collect(toMap(identity(), head -> calculateDistanceBoard(gameBoard.getBoard(), head)));
+    }
+    
+    private boolean noFoodOnGameBoard(GameBoard gameBoard) {
+        return gameBoard.getFoodList().isEmpty();
+    }
+    
+    // DFS search to calculate the distance from the snake's head to each vertex on the game board.
+    private int[][] calculateDistanceBoard(int[][] board, Vertex snakeHead) {
+        int[][] distance = createDistanceBoard(board.length);
+        
+        distance[snakeHead.getRow()][snakeHead.getColumn()] = 0;
+        
+        calculateDistanceDFS(board, snakeHead, distance);
+        
+        return distance;
     }
     
     private void calculateDistanceDFS(int[][] board, Vertex start, int[][] distance) {
@@ -95,6 +117,24 @@ public class FoodPathSolver implements PathSolver {
             }
         }
         throw new RuntimeException("Trapped!!!");
+    }
+    
+    private Vertex findFoodCloserToMeThanOthers(List<Vertex> foodList, Map<Vertex, int[][]> snakesDistanceBoard, Vertex me) {
+        
+        // Find the nearest food of each snake.
+        Map<Vertex, Vertex> snakesNearestFood = snakesDistanceBoard
+                .entrySet()
+                .parallelStream()
+                .collect(Collectors.toMap(entry -> entry.getKey(), entry -> findNearestFood(foodList, entry.getValue())));
+        
+        // From other snakes nearest food, try to find one closer to me. If cannot find any, return my nearest food.
+        return snakesNearestFood.entrySet()
+                                .stream()
+                                .filter(entry -> getDistance(snakesDistanceBoard.get(me), entry.getValue()) < getDistance(
+                                        snakesDistanceBoard.get(entry.getKey()), entry.getValue()))
+                                .findFirst()
+                                .map(entry -> entry.getValue())
+                                .orElse(snakesNearestFood.get(me));
     }
     
     private Vertex findNearestFood(List<Vertex> foodList, int[][] distance) {

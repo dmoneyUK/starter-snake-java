@@ -19,7 +19,20 @@ public class GameBoardUtils {
     private static final int BLOCKED = 1;
     private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
     
-    private static Function<JsonNode, GameBoard> gameBoardCreateFn = (request) -> {
+    public static GameBoard initGameBoard(JsonNode request) {
+        
+        return createGameBoardFn
+                .andThen(markBordersFn)
+                .andThen(markSnakesFn)
+                .andThen(markFoodFn)
+                .apply(request);
+    }
+    
+    public static Vertex findSelfHead(JsonNode request) throws JsonProcessingException {
+        return JSON_MAPPER.treeToValue(request.get("you").findValue("body").get(0), Vertex.class);
+    }
+    
+    private static Function<JsonNode, GameBoard> createGameBoardFn = (request) -> {
         JsonNode boardNode = request.get("board");
         GameBoard gameBoard = null;
         try {
@@ -35,7 +48,7 @@ public class GameBoardUtils {
         return gameBoard;
     };
     
-    private static Function<GameBoard, GameBoard> borderMarkFn = (gameBoard) -> {
+    private static Function<GameBoard, GameBoard> markBordersFn = (gameBoard) -> {
         //TODO: try async for the works
         int[][] board = gameBoard.getBoard();
         Arrays.fill(board[0], 1);
@@ -49,7 +62,7 @@ public class GameBoardUtils {
         return gameBoard;
     };
     
-    private static Function<GameBoard, GameBoard> snakesMarkFn = gameBoard -> {
+    private static Function<GameBoard, GameBoard> markSnakesFn = gameBoard -> {
         gameBoard.getSnakes()
                  .parallelStream()
                  .forEach(snake -> snake.getBody()
@@ -58,21 +71,12 @@ public class GameBoardUtils {
         return gameBoard;
     };
     
-    private static Function<GameBoard, GameBoard> foodMarkFn = gameBoard -> {
+    private static Function<GameBoard, GameBoard> markFoodFn = gameBoard -> {
         gameBoard.getFoodList()
                  .parallelStream()
                  .forEach(food -> markOccupied(gameBoard.getBoard(), food, FOOD));
         return gameBoard;
     };
-    
-    public static GameBoard initGameBoard(JsonNode request) {
-        
-        return gameBoardCreateFn
-                .andThen(borderMarkFn)
-                .andThen(snakesMarkFn)
-                .andThen(foodMarkFn)
-                .apply(request);
-    }
     
     private static List<Vertex> getFoodList(JsonNode request) throws JsonProcessingException {
         
@@ -95,10 +99,6 @@ public class GameBoardUtils {
             snakes.add(JSON_MAPPER.treeToValue(snakeIt.next(), Snake.class));
         }
         return snakes;
-    }
-    
-    public static Vertex findSelfHead(JsonNode request) throws JsonProcessingException {
-        return JSON_MAPPER.treeToValue(request.get("you").findValue("body").get(0), Vertex.class);
     }
     
     private static Vertex markOccupied(int[][] board, Vertex vertex, int reason) {
