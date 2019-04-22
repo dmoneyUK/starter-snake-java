@@ -7,7 +7,6 @@ import io.battlesnake.starter.model.Vertex;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static io.battlesnake.starter.utils.DistanceBoardUtils.createDistanceBoard;
@@ -19,21 +18,36 @@ public class FoodPathSolver implements PathSolver {
     
     private static int[][] dirs = {{1, 0}, {-1, 0}, {0, -1}, {0, 1}};
     
-    private Function<Snake, Vertex> getSnakeHeadFn = snake -> snake.getBody().get(0);
-    
     @Override
     public String findNextStep(GameBoard gameBoard) {
-        Vertex me = gameBoard.getMe();
+        Vertex me = gameBoard.getMe().getHead();
+        checkHeadToHeadSafe(gameBoard);
         Vertex nextPos = findNextVertex(gameBoard, me);
+    
         return findNextMovment(me, nextPos);
     }
     
-    // Find the location ( a vertex) to move to.
+    private boolean checkHeadToHeadSafe(GameBoard gameBoard) {
+        Snake me = gameBoard.getMe();
+        gameBoard.getSnakes()
+                 .parallelStream()
+                 .map(snake -> {
+                     return false;
+                     //return getHeadToHeadDistance(me, snake.getBody().get(0)) == 1 && snake.getBody().size() < me.getBody().size());
+                 });
+        return false;
+    }
+    
+    private int getHeadToHeadDistance(Vertex me, Vertex head) {
+        return Math.abs(head.getRow() - me.getRow()) + Math.abs(head.getRow() - me.getRow());
+    }
+    
+    // Find the location (a vertex) to move to.
     private Vertex findNextVertex(GameBoard gameBoard, Vertex me) {
         Vertex nextPos;
         if (noFoodOnGameBoard(gameBoard)) {
             // Food has not be generated in the round when it is eaten, move to any safe place.
-            nextPos = findEmptyNeighbor(gameBoard.getBoard(), me);
+            nextPos = findEmptyNeighberVertex(gameBoard.getBoard(), me);
         } else {
             // Calculate the distance board for all snakes and then try to find the food
             // which is closer to me than others. ( may not be the closest to me).
@@ -70,7 +84,7 @@ public class FoodPathSolver implements PathSolver {
     private Map<Vertex, int[][]> getAllSnakesDistanceBoards(GameBoard gameBoard) {
         return gameBoard.getSnakes()
                         .parallelStream()
-                        .map(getSnakeHeadFn)
+                        .map(Snake::getHead)
                         .collect(toMap(identity(), head -> calculateDistanceBoard(gameBoard.getBoard(), head)));
     }
     
@@ -108,7 +122,7 @@ public class FoodPathSolver implements PathSolver {
         }
     }
     
-    private Vertex findEmptyNeighbor(int[][] board, Vertex start) {
+    private Vertex findEmptyNeighberVertex(int[][] board, Vertex start) {
         for (int[] dir : dirs) {
             int y = start.getRow() + dir[0];
             int x = start.getColumn() + dir[1];

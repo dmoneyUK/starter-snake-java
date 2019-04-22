@@ -28,8 +28,8 @@ public class GameBoardUtils {
                 .apply(request);
     }
     
-    public static Vertex findSelfHead(JsonNode request) throws JsonProcessingException {
-        return JSON_MAPPER.treeToValue(request.get("you").findValue("body").get(0), Vertex.class);
+    public static Snake findMe(JsonNode request) throws JsonProcessingException {
+        return JSON_MAPPER.treeToValue(request.get("you"), Snake.class);
     }
     
     private static Function<JsonNode, GameBoard> createGameBoardFn = (request) -> {
@@ -40,7 +40,7 @@ public class GameBoardUtils {
                                  .board(new int[boardNode.get("width").asInt() + 2][boardNode.get("height").asInt() + 2])
                                  .foodList(getFoodList(request))
                                  .snakes(findSnakes(request))
-                                 .me(findSelfHead(request))
+                                 .me(findMe(request))
                                  .build();
         } catch (JsonProcessingException e) {
             e.printStackTrace();

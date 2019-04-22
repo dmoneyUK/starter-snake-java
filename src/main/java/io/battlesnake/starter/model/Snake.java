@@ -17,4 +17,8 @@ public class Snake {
     private String name;
     private int health;
     private List<Vertex> body;
+    
+    public Vertex getHead(){
+        return body.get(0);
+    }
 }
