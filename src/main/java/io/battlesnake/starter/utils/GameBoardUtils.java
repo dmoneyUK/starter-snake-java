@@ -42,7 +42,7 @@ public class GameBoardUtils {
         // try async for each task
         return createGameBoardFn
                 .andThen(GameBoardUtils::markBorders)
-                .andThen(GameBoardUtils::markSnakesAndDangerous)
+                .andThen(GameBoardUtils::markSnakes)
                 .andThen(GameBoardUtils::markFood)
                 .apply(request);
     }
@@ -63,6 +63,17 @@ public class GameBoardUtils {
         
     }
     
+    public static int[][] getBoardClone(GameBoard gameBoard) {
+        
+        return Arrays.stream(gameBoard.getBoard())
+                     .map(r -> r.clone())
+                     .toArray(int[][]::new);
+    }
+    
+    public static void markDangerous(int[][] board, Vertex dangerous) {
+        board[dangerous.getRow()][dangerous.getColumn()] = 1;
+    }
+    
     private static GameBoard markBorders(GameBoard gameBoard) {
         int[][] board = gameBoard.getBoard();
         Arrays.fill(board[0], 1);
@@ -75,8 +86,7 @@ public class GameBoardUtils {
         return gameBoard;
     }
     
-    private static GameBoard markSnakesAndDangerous(GameBoard gameBoard) {
-        Snake me = gameBoard.getMe();
+    private static GameBoard markSnakes(GameBoard gameBoard) {
         
         gameBoard.getSnakes()
                  .parallelStream()
