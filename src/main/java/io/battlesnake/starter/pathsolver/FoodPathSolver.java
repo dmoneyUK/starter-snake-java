@@ -3,6 +3,7 @@ package io.battlesnake.starter.pathsolver;
 import io.battlesnake.starter.model.GameBoard;
 import io.battlesnake.starter.model.Snake;
 import io.battlesnake.starter.model.Vertex;
+import io.battlesnake.starter.utils.GameBoardUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,37 +17,25 @@ import static java.util.stream.Collectors.toMap;
 
 public class FoodPathSolver implements PathSolver {
     
-    private static int[][] dirs = {{1, 0}, {-1, 0}, {0, -1}, {0, 1}};
+    public static int[][] dirs = {{1, 0}, {-1, 0}, {0, -1}, {0, 1}};
     
     @Override
     public String findNextStep(GameBoard gameBoard) {
         Vertex me = gameBoard.getMe().getHead();
-        checkHeadToHeadSafe(gameBoard);
+    
         Vertex nextPos = findNextVertex(gameBoard, me);
-    
+
         return findNextMovment(me, nextPos);
-    }
-    
-    private boolean checkHeadToHeadSafe(GameBoard gameBoard) {
-        Snake me = gameBoard.getMe();
-        gameBoard.getSnakes()
-                 .parallelStream()
-                 .map(snake -> {
-                     return false;
-                     //return getHeadToHeadDistance(me, snake.getBody().get(0)) == 1 && snake.getBody().size() < me.getBody().size());
-                 });
-        return false;
-    }
-    
-    private int getHeadToHeadDistance(Vertex me, Vertex head) {
-        return Math.abs(head.getRow() - me.getRow()) + Math.abs(head.getRow() - me.getRow());
     }
     
     // Find the location (a vertex) to move to.
     private Vertex findNextVertex(GameBoard gameBoard, Vertex me) {
         Vertex nextPos;
+        
         if (noFoodOnGameBoard(gameBoard)) {
-            // Food has not be generated in the round when it is eaten, move to any safe place.
+            // move to any safe place, when:
+            // a) Food has not be generated in the round when it is eaten,
+            // b) clash could happen and the other is not shorter than me.
             nextPos = findEmptyNeighberVertex(gameBoard.getBoard(), me);
         } else {
             // Calculate the distance board for all snakes and then try to find the food
