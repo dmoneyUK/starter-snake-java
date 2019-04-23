@@ -17,4 +17,8 @@ public class DistanceBoardUtils {
         return distanceBoard[target.getRow()][target.getColumn()];
     }
     
+    public static void markDangerous(int[][] distanceBoard, Vertex dangerous) {
+        distanceBoard[dangerous.getRow()][dangerous.getColumn()] = Integer.MAX_VALUE;
+    }
+    
 }
