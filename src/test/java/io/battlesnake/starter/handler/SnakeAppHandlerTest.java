@@ -2,7 +2,7 @@ package io.battlesnake.starter.handler;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.battlesnake.starter.utils.GameBoardUtils;
+import io.battlesnake.starter.utils.JsonFixtures;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -23,4 +23,15 @@ class SnakeAppHandlerTest {
         Map<String, String> response = testObj.move(request);
         assertThat(response.get("move")).isEqualTo("left");
     }
+    
+    @Test
+    void shouldAvoidClashAndMoveDown() throws IOException {
+        String reqJson = JsonFixtures.read("fixtures/headToHead.json");
+        
+        JsonNode request = JSON_MAPPER.readTree(reqJson);
+        
+        Map<String, String> response = testObj.move(request);
+        assertThat(response.get("move")).isEqualTo("down");
+    }
+    
 }

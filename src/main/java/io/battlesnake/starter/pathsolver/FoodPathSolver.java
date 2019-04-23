@@ -3,6 +3,7 @@ package io.battlesnake.starter.pathsolver;
 import io.battlesnake.starter.model.GameBoard;
 import io.battlesnake.starter.model.Snake;
 import io.battlesnake.starter.model.Vertex;
+import io.battlesnake.starter.utils.DistanceBoardUtils;
 import io.battlesnake.starter.utils.GameBoardUtils;
 
 import java.util.ArrayList;
@@ -21,10 +22,11 @@ public class FoodPathSolver implements PathSolver {
     
     @Override
     public String findNextStep(GameBoard gameBoard) {
+    
         Vertex me = gameBoard.getMe().getHead();
     
         Vertex nextPos = findNextVertex(gameBoard, me);
-
+    
         return findNextMovment(me, nextPos);
     }
     
@@ -71,10 +73,18 @@ public class FoodPathSolver implements PathSolver {
     }
     
     private Map<Vertex, int[][]> getAllSnakesDistanceBoards(GameBoard gameBoard) {
-        return gameBoard.getSnakes()
-                        .parallelStream()
-                        .map(Snake::getHead)
-                        .collect(toMap(identity(), head -> calculateDistanceBoard(gameBoard.getBoard(), head)));
+        Map<Vertex, int[][]> allSnakesDistanceBoards = gameBoard.getSnakes()
+                                                                .parallelStream()
+                                                                .map(Snake::getHead)
+                                                                .collect(toMap(identity(),
+                                                                               head -> calculateDistanceBoard(gameBoard.getBoard(), head)));
+    
+        GameBoardUtils.findDangerous(gameBoard)
+                      .parallelStream()
+                      .forEach(dangerous -> DistanceBoardUtils.markDangerous(allSnakesDistanceBoards.get(gameBoard.getMe().getHead()), dangerous));
+    
+        return allSnakesDistanceBoards;
+        
     }
     
     private boolean noFoodOnGameBoard(GameBoard gameBoard) {

@@ -51,6 +51,18 @@ public class GameBoardUtils {
         return JSON_MAPPER.treeToValue(request.get("you"), Snake.class);
     }
     
+    public static List<Vertex> findDangerous(GameBoard gameBoard) {
+        Snake me = gameBoard.getMe();
+        return gameBoard.getSnakes()
+                        .parallelStream()
+                        .filter(snake -> getHeadToHeadDistance(me.getHead(), snake.getHead()) == 2)
+                        .filter(snake -> !snake.isShortThan(me))
+                        .map(Snake::getMovementRange)
+                        .flatMap(moveRange -> moveRange.stream())
+                        .collect(Collectors.toList());
+        
+    }
+    
     private static GameBoard markBorders(GameBoard gameBoard) {
         int[][] board = gameBoard.getBoard();
         Arrays.fill(board[0], 1);
@@ -68,10 +80,7 @@ public class GameBoardUtils {
         
         gameBoard.getSnakes()
                  .parallelStream()
-                 .map(snake -> markSnake(gameBoard, snake))
-                 .filter(snake -> getHeadToHeadDistance(me.getHead(), snake.getHead()) == 1)
-                 .filter(snake -> !snake.isShortThan(me))
-                 .forEach(snake -> markDangerous(gameBoard, snake));
+                 .forEach(snake -> markSnake(gameBoard, snake));
         return gameBoard;
     }
     
@@ -82,14 +91,11 @@ public class GameBoardUtils {
         return snake;
     }
     
-    private static void markDangerous(GameBoard gameBoard, Snake snake) {
-        snake.getMovementRange()
-             .forEach(vertex -> markOccupied(gameBoard.getBoard(), vertex, DANGEROUR));
-    }
-    
     private static GameBoard markFood(GameBoard gameBoard) {
+    
         gameBoard.getFoodList()
                  .parallelStream()
+                 .filter(food -> gameBoard.getBoard()[food.getRow()][food.getColumn()] != 1)
                  .forEach(food -> markOccupied(gameBoard.getBoard(), food, FOOD));
         return gameBoard;
     }
@@ -122,19 +128,10 @@ public class GameBoardUtils {
         return snakes;
     }
     
-    private static List<Vertex> findKillers(GameBoard gameBoard) {
-        Snake me = gameBoard.getMe();
-        return gameBoard.getSnakes()
-                        .parallelStream()
-                        .filter(snake -> getHeadToHeadDistance(me.getHead(), snake.getHead()) == 1)
-                        .filter(snake -> !snake.isShortThan(me))
-                        .map(Snake::getHead)
-                        .collect(Collectors.toList());
-        
-    }
+
     
     private static int getHeadToHeadDistance(Vertex me, Vertex head) {
-        return Math.abs(head.getRow() - me.getRow()) + Math.abs(head.getRow() - me.getRow());
+        return Math.abs(head.getRow() - me.getRow()) + Math.abs(head.getColumn() - me.getColumn());
     }
     
     
