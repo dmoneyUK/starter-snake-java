@@ -7,9 +7,10 @@ import java.util.List;
 
 @Data
 @Builder
-public class GameBoard {
+public class GameBoard implements Cloneable{
     private int[][] board;
     private List<Snake> snakes;
     private List<Vertex> foodList;
     private Snake me;
+    
 }
