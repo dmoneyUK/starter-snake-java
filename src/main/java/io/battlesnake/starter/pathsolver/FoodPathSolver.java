@@ -80,7 +80,6 @@ public class FoodPathSolver implements PathSolver {
     
         int[][] myDistanceBoard = getMyDistanceBoard(gameBoard);
     
-        PrintingUtils.printBoard(myDistanceBoard);
         Snake me = gameBoard.getMe();
         Map<Vertex, int[][]> allSnakesDistanceBoards = gameBoard.getSnakes()
                                                                 .parallelStream()
@@ -102,7 +101,6 @@ public class FoodPathSolver implements PathSolver {
         GameBoardUtils.findDangerous(gameBoard)
                       .parallelStream()
                       .forEach(dangerous -> GameBoardUtils.markDangerous(boardClone, dangerous));
-        PrintingUtils.printBoard(gameBoard.getBoard());
         return calculateDistanceBoard(boardClone, gameBoard.getMe().getHead());
     }
     

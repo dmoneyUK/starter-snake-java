@@ -64,4 +64,14 @@ class SnakeAppHandlerTest {
         assertThat(response.get("move")).isEqualTo("down");
     }
     
+    @Test
+    void shouldAvoidSelfCollision2AndMoveRight() throws IOException {
+        String reqJson = JsonFixtures.read("fixtures/shouldAvoidSelfCollision2.json");
+        
+        JsonNode request = JSON_MAPPER.readTree(reqJson);
+        
+        Map<String, String> response = testObj.move(request);
+        assertThat(response.get("move")).isEqualTo("right");
+    }
+    
 }
