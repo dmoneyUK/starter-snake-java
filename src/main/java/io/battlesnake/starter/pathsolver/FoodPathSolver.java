@@ -32,7 +32,6 @@ public class FoodPathSolver implements PathSolver {
     }
     
     // Find the location (a vertex) to move to.
-    
     private Vertex findNextPosition(GameBoard gameBoard, Vertex me) {
         Optional<Vertex> nextPos = Optional.empty();
         // Calculate the distance board for all snakes
@@ -55,7 +54,7 @@ public class FoodPathSolver implements PathSolver {
         // move to any safe place, when:
         // a) Food has not be generated in the round when it is eaten,
         // b) No access to any food
-        return nextPos.orElse(findEmptyNeighberVertex(gameBoard.getBoard(), me));
+        return nextPos.orElseGet(() -> findEmptyNeighberVertex(gameBoard.getBoard(), me));
     }
     
     // calculate next movement direction based on the next location to move to and current location.
@@ -81,6 +80,7 @@ public class FoodPathSolver implements PathSolver {
     
         int[][] myDistanceBoard = getMyDistanceBoard(gameBoard);
     
+        PrintingUtils.printBoard(myDistanceBoard);
         Snake me = gameBoard.getMe();
         Map<Vertex, int[][]> allSnakesDistanceBoards = gameBoard.getSnakes()
                                                                 .parallelStream()
@@ -102,7 +102,7 @@ public class FoodPathSolver implements PathSolver {
         GameBoardUtils.findDangerous(gameBoard)
                       .parallelStream()
                       .forEach(dangerous -> GameBoardUtils.markDangerous(boardClone, dangerous));
-        
+        PrintingUtils.printBoard(gameBoard.getBoard());
         return calculateDistanceBoard(boardClone, gameBoard.getMe().getHead());
     }
     
