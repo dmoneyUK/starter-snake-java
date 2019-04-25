@@ -9,7 +9,11 @@ public class PrintingUtils {
         System.out.println("____________________________");
         for (int[] row : board) {
             for (int v : row) {
-                System.out.print(v + " ");
+                String s = (v == Integer.MAX_VALUE) ? "-1 " : v + " ";
+                if (v < 10) {
+                    s += " ";
+                }
+                System.out.print(s);
             }
             System.out.println();
         }

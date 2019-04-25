@@ -1,0 +1,150 @@
+{
+  "game": {
+    "id": "5b7d84a1-ed9a-423f-b7f7-ae8cf60b48f7"
+  },
+  "turn": 16,
+  "board": {
+    "height": 11,
+    "width": 11,
+    "food": [
+      {
+        "x": 6,
+        "y": 6
+      },
+      {
+        "x": 10,
+        "y": 1
+      }
+    ],
+    "snakes": [
+      {
+        "id": "gs_MTQC3Y8SGRdKQv7DdqRRcxh8",
+        "name": "neovas / hissin-bastid",
+        "health": 89,
+        "body": [
+          {
+            "x": 5,
+            "y": 7
+          },
+          {
+            "x": 6,
+            "y": 7
+          },
+          {
+            "x": 7,
+            "y": 7
+          },
+          {
+            "x": 7,
+            "y": 6
+          }
+        ]
+      },
+      {
+        "id": "gs_RxbK4KYgwfGJ69bG3p7cvtXQ",
+        "name": "jeremysnell / Writhe",
+        "health": 84,
+        "body": [
+          {
+            "x": 4,
+            "y": 10
+          },
+          {
+            "x": 5,
+            "y": 10
+          },
+          {
+            "x": 6,
+            "y": 10
+          }
+        ]
+      },
+      {
+        "id": "gs_gJTrDXmRdfWQFYYKXbvbF3SW",
+        "name": "dmoneyUK / JDSnake",
+        "health": 100,
+        "body": [
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 0,
+            "y": 1
+          },
+          {
+            "x": 0,
+            "y": 2
+          },
+          {
+            "x": 1,
+            "y": 2
+          },
+          {
+            "x": 2,
+            "y": 2
+          },
+          {
+            "x": 2,
+            "y": 1
+          },
+          {
+            "x": 3,
+            "y": 1
+          },
+          {
+            "x": 3,
+            "y": 0
+          },
+          {
+            "x": 3,
+            "y": 0
+          }
+        ]
+      }
+    ]
+  },
+  "you": {
+    "id": "gs_gJTrDXmRdfWQFYYKXbvbF3SW",
+    "name": "dmoneyUK / JDSnake",
+    "health": 100,
+    "body": [
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 0,
+        "y": 1
+      },
+      {
+        "x": 0,
+        "y": 2
+      },
+      {
+        "x": 1,
+        "y": 2
+      },
+      {
+        "x": 2,
+        "y": 2
+      },
+      {
+        "x": 2,
+        "y": 1
+      },
+      {
+        "x": 3,
+        "y": 1
+      },
+      {
+        "x": 3,
+        "y": 0
+      },
+      {
+        "x": 3,
+        "y": 0
+      }
+    ]
+  }
+}

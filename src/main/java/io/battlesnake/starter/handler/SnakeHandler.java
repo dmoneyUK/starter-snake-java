@@ -94,7 +94,6 @@ public class SnakeHandler {
      */
     public Map<String, String> move(JsonNode moveRequest) throws JsonProcessingException {
         GameBoard gameBoard = initGameBoard(moveRequest);
-        //PrintingUtils.printBoard(board);
     
         String nextStep = pathSolver.findNextStep(gameBoard);
         
