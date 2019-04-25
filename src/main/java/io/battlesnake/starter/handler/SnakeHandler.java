@@ -52,6 +52,9 @@ public class SnakeHandler {
             } else {
                 throw new IllegalAccessError("Strange call made to the snake: " + uri);
             }
+            snakeResponse.put("color", "#736CCB");
+            snakeResponse.put("headType","silly");
+            snakeResponse.put("tailType", "hook");
             LOG.info("Responding with: {}", JSON_MAPPER.writeValueAsString(snakeResponse));
             return snakeResponse;
         } catch (Exception e) {
