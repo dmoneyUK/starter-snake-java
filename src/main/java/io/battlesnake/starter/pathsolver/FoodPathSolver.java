@@ -3,6 +3,7 @@ package io.battlesnake.starter.pathsolver;
 import io.battlesnake.starter.model.GameBoard;
 import io.battlesnake.starter.model.Snake;
 import io.battlesnake.starter.model.Vertex;
+import io.battlesnake.starter.utils.DistanceBoardUtils;
 import io.battlesnake.starter.utils.GameBoardUtils;
 import io.battlesnake.starter.utils.PrintingUtils;
 
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 import static io.battlesnake.starter.utils.DistanceBoardUtils.createDistanceBoard;
 import static io.battlesnake.starter.utils.DistanceBoardUtils.getDistance;
 import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.reducing;
 import static java.util.stream.Collectors.toMap;
 
 public class FoodPathSolver implements PathSolver {
@@ -28,37 +30,47 @@ public class FoodPathSolver implements PathSolver {
     
         Vertex nextPos = findNextPosition(gameBoard, me);
     
-        return findNextMovment(me, nextPos);
+        return findNextMovement(me, nextPos);
     }
     
     // Find the location (a vertex) to move to.
     private Vertex findNextPosition(GameBoard gameBoard, Vertex me) {
-        Optional<Vertex> nextPos = Optional.empty();
-        // Calculate the distance board for all snakes
+        Vertex nextPos;
         
-        //TODO: consider other strategy, e.g. if no way to food, try hamilton path
+        // Calculate the distance board for all snakes
+        Map<Vertex, int[][]> snakesDistanceMap = getAllSnakesDistanceBoards(gameBoard);
+        int[][] myDistanceBoard = snakesDistanceMap.get(me);
+        
+        //Try to find the food which is closer to me than others. (may not be the closest to me).
+        Optional<Vertex> optionalTarget = Optional.empty();
         if (hasFoodOnGameBoard(gameBoard)) {
-            Map<Vertex, int[][]> snakesDistanceMap = getAllSnakesDistanceBoards(gameBoard);
-            //Try to find the food which is closer to me than others. (may not be the closest to me).
-            int[][] myDistanceBoard = snakesDistanceMap.get(me);
-            Optional<Vertex> optionalTargetFood = findFoodCloserToMeThanOthers(gameBoard.getFoodList(), snakesDistanceMap, me);
-            
-            if (optionalTargetFood.isPresent()) {
-                // back track to draw the path to the food closer to me and take the first step in the path.
-                List<Vertex> path = backTrack(optionalTargetFood.get(), myDistanceBoard);
-                nextPos = Optional.of(path.get(path.size() - 1));
-            }
+            optionalTarget = findFoodCloserToMeThanOthers(gameBoard.getFoodList(), snakesDistanceMap, me);
         }
         
-        //TODO: if no way to food, try hamilton path
-        // move to any safe place, when:
+        // Move to some safe place, when:
         // a) Food has not be generated in the round when it is eaten,
         // b) No access to any food
-        return nextPos.orElseGet(() -> findEmptyNeighberVertex(gameBoard.getBoard(), me));
+        if (optionalTarget.isPresent()) {
+            // back track to draw the path to the food closer to me and take the first step in the path.
+            nextPos = backTrackNextPosition(myDistanceBoard, optionalTarget.get());
+        }else{
+            /* Random movement */
+            //return nextPos.orElseGet(() -> findEmptyNeighberVertex(gameBoard.getBoard(), me));
+            
+            /* Move to the farthest*/
+            nextPos = backTrackNextPosition(myDistanceBoard, DistanceBoardUtils.getFarthestVertex(myDistanceBoard));
+        }
+        
+        return nextPos;
+    }
+    
+    private Vertex backTrackNextPosition(int[][] myDistanceBoard, Vertex target) {
+        List<Vertex> path = backTrackPath(target, myDistanceBoard);
+        return path.get(path.size() - 1);
     }
     
     // calculate next movement direction based on the next location to move to and current location.
-    private String findNextMovment(Vertex me, Vertex nextPos) {
+    private String findNextMovement(Vertex me, Vertex nextPos) {
         int y = nextPos.getRow() - me.getRow();
         int x = nextPos.getColumn() - me.getColumn();
         
@@ -113,27 +125,29 @@ public class FoodPathSolver implements PathSolver {
         int[][] distance = createDistanceBoard(board.length);
         
         distance[snakeHead.getRow()][snakeHead.getColumn()] = 0;
-        
+    
         calculateDistanceDFS(board, snakeHead, distance);
-        
+    
         return distance;
     }
     
     private void calculateDistanceDFS(int[][] board, Vertex start, int[][] distance) {
+    
+        int startDistance = distance[start.getRow()][start.getColumn()];
         
         for (int[] dir : dirs) {
             int row = start.getRow() + dir[0];
             int column = start.getColumn() + dir[1];
-            int count = 0;
     
             if (board[row][column] != 1) {
-                row += dir[0];
-                column += dir[1];
-                count++;
-            }
-            if (distance[row - dir[0]][column - dir[1]] > distance[start.getRow()][start.getColumn()] + count) {
-                distance[row - dir[0]][column - dir[1]] = distance[start.getRow()][start.getColumn()] + count;
-                calculateDistanceDFS(board, Vertex.builder().row(row - dir[0]).column(column - dir[1]).build(), distance);
+    
+                int nextDistanceInOldRoute = distance[row][column];
+                int nextDistanceInNewRoute = startDistance + 1;
+    
+                if (nextDistanceInOldRoute > nextDistanceInNewRoute) {
+                    distance[row][column] = nextDistanceInNewRoute;
+                    calculateDistanceDFS(board, Vertex.builder().row(row).column(column).build(), distance);
+                }
             }
         }
     }
@@ -179,7 +193,7 @@ public class FoodPathSolver implements PathSolver {
         return getDistance(snakesDistanceBoardMap.get(me), food) < getDistance(snakesDistanceBoardMap.get(other), food);
     }
     
-    private List<Vertex> backTrack(Vertex target, int[][] distance) {
+    private List<Vertex> backTrackPath(Vertex target, int[][] distance) {
         int dis = distance[target.getRow()][target.getColumn()];
         if (dis == Integer.MAX_VALUE) {
             return null;
@@ -214,4 +228,5 @@ public class FoodPathSolver implements PathSolver {
     }
     
     /* ######################################################################### */
+    
 }
