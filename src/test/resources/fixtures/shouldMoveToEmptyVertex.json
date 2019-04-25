@@ -1,0 +1,197 @@
+{
+  "game": {
+    "id": "94b81553-6dd6-4092-9d1e-46287c645f5c"
+  },
+  "turn": 6,
+  "board": {
+    "height": 11,
+    "width": 11,
+    "food": [],
+    "snakes": [
+      {
+        "id": "gs_PxDWMRX48X334jH9jrJqGbR6",
+        "name": "lduchosal / kimjon-0.14",
+        "health": 94,
+        "body": [
+          {
+            "x": 4,
+            "y": 2
+          },
+          {
+            "x": 3,
+            "y": 2
+          },
+          {
+            "x": 3,
+            "y": 3
+          }
+        ]
+      },
+      {
+        "id": "gs_p7rdT4GTGgXjT8Dp47DfQKVJ",
+        "name": "jhawthorn / Git Adder (experimental)",
+        "health": 94,
+        "body": [
+          {
+            "x": 8,
+            "y": 10
+          },
+          {
+            "x": 9,
+            "y": 10
+          },
+          {
+            "x": 9,
+            "y": 9
+          }
+        ]
+      },
+      {
+        "id": "gs_qJGJhV9JTWDXjbSxbVggb7WC",
+        "name": "jhawthorn / Git Adder",
+        "health": 96,
+        "body": [
+          {
+            "x": 2,
+            "y": 6
+          },
+          {
+            "x": 3,
+            "y": 6
+          },
+          {
+            "x": 3,
+            "y": 7
+          },
+          {
+            "x": 2,
+            "y": 7
+          }
+        ]
+      },
+      {
+        "id": "gs_k99gT34j6cmMkM8FwKqY6qpD",
+        "name": "coolpeepz / That was a misnake",
+        "health": 96,
+        "body": [
+          {
+            "x": 7,
+            "y": 5
+          },
+          {
+            "x": 7,
+            "y": 4
+          },
+          {
+            "x": 8,
+            "y": 4
+          },
+          {
+            "x": 8,
+            "y": 3
+          }
+        ]
+      },
+      {
+        "id": "gs_qDQY6jdhBdPK9fBjJkVvQ93f",
+        "name": "SUalreadyTaken / mad 2.0",
+        "health": 100,
+        "body": [
+          {
+            "x": 3,
+            "y": 5
+          },
+          {
+            "x": 3,
+            "y": 4
+          },
+          {
+            "x": 4,
+            "y": 4
+          },
+          {
+            "x": 5,
+            "y": 4
+          },
+          {
+            "x": 5,
+            "y": 3
+          },
+          {
+            "x": 5,
+            "y": 3
+          }
+        ]
+      },
+      {
+        "id": "gs_SxPf6GGkfhWftqrfk6xVgHwc",
+        "name": "dmoneyUK / JDSnake",
+        "health": 96,
+        "body": [
+          {
+            "x": 5,
+            "y": 5
+          },
+          {
+            "x": 5,
+            "y": 6
+          },
+          {
+            "x": 6,
+            "y": 6
+          },
+          {
+            "x": 7,
+            "y": 6
+          }
+        ]
+      },
+      {
+        "id": "gs_SCM9mpxKbGxrfDGSJhvC44WS",
+        "name": "xtagon / Nagini",
+        "health": 97,
+        "body": [
+          {
+            "x": 10,
+            "y": 8
+          },
+          {
+            "x": 9,
+            "y": 8
+          },
+          {
+            "x": 8,
+            "y": 8
+          },
+          {
+            "x": 7,
+            "y": 8
+          }
+        ]
+      }
+    ]
+  },
+  "you": {
+    "id": "gs_SxPf6GGkfhWftqrfk6xVgHwc",
+    "name": "dmoneyUK / JDSnake",
+    "health": 96,
+    "body": [
+      {
+        "x": 5,
+        "y": 5
+      },
+      {
+        "x": 5,
+        "y": 6
+      },
+      {
+        "x": 6,
+        "y": 6
+      },
+      {
+        "x": 7,
+        "y": 6
+      }
+    ]
+  }
+}

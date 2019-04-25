@@ -5,7 +5,6 @@ import io.battlesnake.starter.model.Snake;
 import io.battlesnake.starter.model.Vertex;
 import io.battlesnake.starter.utils.DistanceBoardUtils;
 import io.battlesnake.starter.utils.GameBoardUtils;
-import io.battlesnake.starter.utils.PrintingUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +15,6 @@ import java.util.stream.Collectors;
 import static io.battlesnake.starter.utils.DistanceBoardUtils.createDistanceBoard;
 import static io.battlesnake.starter.utils.DistanceBoardUtils.getDistance;
 import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.reducing;
 import static java.util.stream.Collectors.toMap;
 
 public class FoodPathSolver implements PathSolver {
@@ -35,7 +33,7 @@ public class FoodPathSolver implements PathSolver {
     
     // Find the location (a vertex) to move to.
     private Vertex findNextPosition(GameBoard gameBoard, Vertex me) {
-        Vertex nextPos;
+        Vertex nextPos = null;
         
         // Calculate the distance board for all snakes
         Map<Vertex, int[][]> snakesDistanceMap = getAllSnakesDistanceBoards(gameBoard);
@@ -50,17 +48,28 @@ public class FoodPathSolver implements PathSolver {
         // Move to some safe place, when:
         // a) Food has not be generated in the round when it is eaten,
         // b) No access to any food
-        if (optionalTarget.isPresent()) {
-            // back track to draw the path to the food closer to me and take the first step in the path.
+        if(optionalTarget.isPresent()){
             nextPos = backTrackNextPosition(myDistanceBoard, optionalTarget.get());
         }else{
-            /* Random movement */
-            //return nextPos.orElseGet(() -> findEmptyNeighberVertex(gameBoard.getBoard(), me));
-            
-            /* Move to the farthest*/
-            nextPos = backTrackNextPosition(myDistanceBoard, DistanceBoardUtils.getFarthestVertex(myDistanceBoard));
+            optionalTarget = DistanceBoardUtils.getFarthestVertex(myDistanceBoard);
+            if(optionalTarget.isPresent()){
+                nextPos = backTrackNextPosition(myDistanceBoard, optionalTarget.get());
+            }else{
+                nextPos = findEmptyNeighberVertex(gameBoard.getBoard(), me);
+            }
         }
         
+        //if (optionalTarget.isPresent()) {
+        //    // back track to draw the path to the food closer to me and take the first step in the path.
+        //    nextPos = backTrackNextPosition(myDistanceBoard, optionalTarget.get());
+        //}else if(DistanceBoardUtils.getFarthestVertex(myDistanceBoard)){
+        //    /* Random movement */
+        //    //return nextPos.orElseGet(() -> findEmptyNeighberVertex(gameBoard.getBoard(), me));
+        //
+        //    /* Move to the farthest*/
+        //    nextPos = backTrackNextPosition(myDistanceBoard, DistanceBoardUtils.getFarthestVertex(myDistanceBoard));
+        //}
+        //
         return nextPos;
     }
     
