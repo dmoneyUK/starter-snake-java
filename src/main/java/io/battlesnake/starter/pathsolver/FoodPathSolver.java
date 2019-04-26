@@ -10,9 +10,7 @@ public class FoodPathSolver implements PathSolver {
     @Override
     public String findNextStep(GameBoard gameBoard) {
     
-        Vertex me = gameBoard.getMe().getHead();
-    
-        return findNextMovement(gameBoard, me);
+        return findNextMovement(gameBoard, gameBoard.getMe().getHead());
     }
     
     

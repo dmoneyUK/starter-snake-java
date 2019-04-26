@@ -154,7 +154,6 @@ public class GameBoardUtils {
         return snakes;
     }
     
-
     
     private static int getHeadToHeadDistance(Vertex me, Vertex head) {
         return Math.abs(head.getRow() - me.getRow()) + Math.abs(head.getColumn() - me.getColumn());

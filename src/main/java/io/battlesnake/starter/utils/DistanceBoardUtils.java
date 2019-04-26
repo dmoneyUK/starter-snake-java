@@ -14,6 +14,7 @@ import static java.util.stream.Collectors.toMap;
 
 public class DistanceBoardUtils {
     private static int[][] dirs = {{1, 0}, {-1, 0}, {0, -1}, {0, 1}};
+    
     public static int[][] createDistanceBoard(int length) {
     
         int[][] distance = new int[length][length];
@@ -66,6 +67,7 @@ public class DistanceBoardUtils {
         
     }
     
+    // Get the distance board for me. This takes consideration of the dangerous areas on the game board.
     private static int[][] getMyDistanceBoard(GameBoard gameBoard) {
         
         int[][] boardClone = GameBoardUtils.getBoardClone(gameBoard);

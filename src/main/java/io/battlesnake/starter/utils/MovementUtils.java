@@ -17,7 +17,6 @@ import static io.battlesnake.starter.utils.GameBoardUtils.hasFoodOnGameBoard;
 public class MovementUtils {
     private static int[][] dirs = {{1, 0}, {-1, 0}, {0, -1}, {0, 1}};
     
-    // calculate next movement direction based on the next location to move to and current location.
     public static String findNextMovement(GameBoard gameBoard, Vertex me) {
         
         Vertex nextPos = findNextPosition(gameBoard, me);
@@ -47,7 +46,7 @@ public class MovementUtils {
         Map<Vertex, int[][]> snakesDistanceMap = getAllSnakesDistanceBoards(gameBoard);
         int[][] myDistanceBoard = snakesDistanceMap.get(me);
         
-        //Try to find the food which is closer to me than others. (may not be the closest to me).
+        //TODO: strategy here
         Optional<Vertex> optionalTarget = Optional.empty();
         if (hasFoodOnGameBoard(gameBoard)) {
             optionalTarget = findFoodCloserToMeThanOthers(gameBoard.getFoodList(), snakesDistanceMap, me);
