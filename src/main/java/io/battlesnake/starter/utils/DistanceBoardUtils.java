@@ -69,12 +69,13 @@ public class DistanceBoardUtils {
     
     // Get the distance board for me. This takes consideration of the dangerous areas on the game board.
     private static int[][] getMyDistanceBoard(GameBoard gameBoard) {
-        
+       
         int[][] boardClone = GameBoardUtils.getBoardClone(gameBoard);
-        
+        //PrintingUtils.printBoard(gameBoard.getBoard());
         GameBoardUtils.findDangerous(gameBoard)
                       .parallelStream()
                       .forEach(dangerous -> GameBoardUtils.markDangerous(boardClone, dangerous));
+        //PrintingUtils.printBoard(boardClone);
         return calculateDistanceBoard(boardClone, gameBoard.getMe().getHead());
     }
     
