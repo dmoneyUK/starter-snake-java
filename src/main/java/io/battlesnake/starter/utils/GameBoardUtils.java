@@ -9,10 +9,14 @@ import io.battlesnake.starter.model.Vertex;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 public class GameBoardUtils {
     
@@ -52,14 +56,12 @@ public class GameBoardUtils {
     }
     
     public static List<Vertex> findDangerous(GameBoard gameBoard) {
-        Snake me = gameBoard.getMe();
-        return gameBoard.getSnakes()
-                        .parallelStream()
-                        .filter(snake -> getHeadToHeadDistance(me.getHead(), snake.getHead()) == 2)
-                        .filter(snake -> !snake.isShortThan(me))
-                        .map(Snake::getMovementRange)
-                        .flatMap(moveRange -> moveRange.stream())
-                        .collect(Collectors.toList());
+        List<Vertex> result =  new ArrayList<>();
+        if(gameBoard.getMe().getHealth()>20) {
+            result.addAll(findSelfCollisionRiskFn(gameBoard));
+            result.addAll(findHeadToHeadRiskFn(gameBoard));
+        }
+        return result;
         
     }
     
@@ -157,6 +159,56 @@ public class GameBoardUtils {
     
     private static int getHeadToHeadDistance(Vertex me, Vertex head) {
         return Math.abs(head.getRow() - me.getRow()) + Math.abs(head.getColumn() - me.getColumn());
+    }
+    
+    private static List<Vertex> findHeadToHeadRiskFn(GameBoard gameBoard) {
+        Snake me = gameBoard.getMe();
+        return gameBoard.getSnakes()
+                        .parallelStream()
+                        .filter(snake -> getHeadToHeadDistance(me.getHead(), snake.getHead()) == 2)
+                        .filter(snake -> !snake.isShortThan(me))
+                        .map(Snake::getMovementRange)
+                        .flatMap(moveRange -> moveRange.stream())
+                        .collect(toList());
+    }
+    
+    private static List<Vertex> findSelfCollisionRiskFn(GameBoard gameBoard) {
+        Snake me = gameBoard.getMe();
+        Vertex head = me.getHead();
+        
+        Set<Vertex> risks = new HashSet<>();
+        
+        int headRow = head.getRow();
+        int headColumn = head.getColumn();
+        
+        List<Vertex> inHeadRow = me.getBody().stream()
+                                   .filter(node -> node.getRow() == headRow)
+                                   .sorted(Comparator.comparingInt(v -> v.getColumn()))
+                                   .collect(toList());
+        
+        if (inHeadRow.size() > 1) {
+            int min = inHeadRow.get(0).getColumn();
+            int max = inHeadRow.get(inHeadRow.size() - 1).getColumn();
+            for (int i = min + 1; i < max; i++) {
+                risks.add(new Vertex(headRow, i));
+            }
+        }
+        
+        List<Vertex> inHeadColumn = me.getBody().stream()
+                                      .filter(node -> node.getColumn() == headColumn)
+                                      .sorted(Comparator.comparingInt(v -> v.getRow()))
+                                      .collect(toList());
+        
+        if (inHeadColumn.size() > 1) {
+            int min = inHeadColumn.get(0).getRow();
+            int max = inHeadColumn.get(inHeadColumn.size() - 1).getRow();
+            for (int i = min + 1; i < max; i++) {
+                risks.add(new Vertex(i, headColumn));
+            }
+        }
+        
+        return risks.stream().collect(toList());
+        
     }
     
 }

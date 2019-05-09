@@ -13,13 +13,4 @@ public class FoodPathSolver implements PathSolver {
         return findNextMovement(gameBoard, gameBoard.getMe().getHead());
     }
     
-    
-    /* ########################## Lock Area ########################## */
-    
-    private Vertex lockArea(int[][] board, Vertex start) {
-        return null;
-        
-    }
-    
-    /* ######################################################################### */
 }

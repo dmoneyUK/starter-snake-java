@@ -9,11 +9,10 @@ import java.util.Map;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
-public class ShouldAvoidSelfCollisionAndMoveDown extends SnakeAppHandlerTest{
-    
+public class ShouldAvoidWallCollision extends SnakeAppHandlerTest {
     @Test
-    void shouldAvoidSelfCollisionAndMoveDown() throws IOException {
-        String reqJson = JsonFixtures.read("fixtures/shouldAvoidSelfCollision.json");
+    void shouldAvoidWallCollisionAndMoveDown() throws IOException {
+        String reqJson = JsonFixtures.read("fixtures/shouldAvoidWallCollison.json");
         
         JsonNode request = JSON_MAPPER.readTree(reqJson);
         
@@ -22,12 +21,12 @@ public class ShouldAvoidSelfCollisionAndMoveDown extends SnakeAppHandlerTest{
     }
     
     @Test
-    void shouldAvoidSelfCollision2AndMoveRight() throws IOException {
-        String reqJson = JsonFixtures.read("fixtures/shouldAvoidSelfCollision2.json");
+    void shouldAvoidWallCollisionAndMoveDown2() throws IOException {
+        String reqJson = JsonFixtures.read("fixtures/shouldAvoidWallCollison2.json");
         
         JsonNode request = JSON_MAPPER.readTree(reqJson);
         
         Map<String, String> response = testObj.move(request);
-        assertThat(response.get("move")).isEqualTo("right");
+        assertThat(response.get("move")).isEqualTo("down");
     }
 }
