@@ -18,8 +18,8 @@ public class GameBoardUtils {
     
     private static final int FOOD = 2;
     private static final int BLOCKED = 1;
-    private static final int DANGEROUR = 1;
     private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
+    private static int[][] dirs = {{1, 0}, {-1, 0}, {0, -1}, {0, 1}};
     
     private static Function<JsonNode, GameBoard> createGameBoardFn = (request) -> {
         JsonNode boardNode = request.get("board");
@@ -73,6 +73,22 @@ public class GameBoardUtils {
     public static void markDangerous(int[][] board, Vertex dangerous) {
         board[dangerous.getRow()][dangerous.getColumn()] = 1;
     }
+    
+    public static boolean hasFoodOnGameBoard(GameBoard gameBoard) {
+        return !gameBoard.getFoodList().isEmpty();
+    }
+    
+    public static Vertex findEmptyNeighberVertex(int[][] board, Vertex start) {
+        for (int[] dir : dirs) {
+            int y = start.getRow() + dir[0];
+            int x = start.getColumn() + dir[1];
+            if (board[y][x] == 0) {
+                return Vertex.builder().row(y).column(x).build();
+            }
+        }
+        throw new RuntimeException("Trapped!!!");
+    }
+    
     
     private static GameBoard markBorders(GameBoard gameBoard) {
         int[][] board = gameBoard.getBoard();
@@ -138,11 +154,9 @@ public class GameBoardUtils {
         return snakes;
     }
     
-
     
     private static int getHeadToHeadDistance(Vertex me, Vertex head) {
         return Math.abs(head.getRow() - me.getRow()) + Math.abs(head.getColumn() - me.getColumn());
     }
-    
     
 }

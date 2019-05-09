@@ -9,14 +9,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static io.battlesnake.starter.pathsolver.FoodPathSolver.dirs;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Snake {
-    
+    private static int[][] dirs = {{1, 0}, {-1, 0}, {0, -1}, {0, 1}};
     private String id;
     private String name;
     private int health;
