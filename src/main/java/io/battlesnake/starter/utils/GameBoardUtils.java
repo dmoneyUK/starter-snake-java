@@ -56,7 +56,10 @@ public class GameBoardUtils {
     }
     
     public static List<Vertex> findDangerous(GameBoard gameBoard) {
-        List<Vertex> result = findSelfCollisionRiskFn(gameBoard);
+        List<Vertex> result =  new ArrayList<>();
+        if(gameBoard.getMe().getHealth()>20) {
+            result.addAll(findSelfCollisionRiskFn(gameBoard));
+        }
         result.addAll(findHeadToHeadRiskFn(gameBoard));
         return result;
         
