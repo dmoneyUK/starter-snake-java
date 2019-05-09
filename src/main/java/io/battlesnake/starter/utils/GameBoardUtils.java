@@ -59,8 +59,8 @@ public class GameBoardUtils {
         List<Vertex> result =  new ArrayList<>();
         if(gameBoard.getMe().getHealth()>20) {
             result.addAll(findSelfCollisionRiskFn(gameBoard));
+            result.addAll(findHeadToHeadRiskFn(gameBoard));
         }
-        result.addAll(findHeadToHeadRiskFn(gameBoard));
         return result;
         
     }
