@@ -25,6 +25,14 @@ public class Snake {
         return body.get(0);
     }
     
+    public Vertex getTail() {
+        return body.get(body.size() - 1);
+    }
+    
+    public int getLength() {
+        return body.size();
+    }
+    
     public boolean isShortThan(Snake other) {
         return body.size() < other.getBody().size();
     }

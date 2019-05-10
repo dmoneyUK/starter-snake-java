@@ -13,6 +13,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -56,11 +57,8 @@ public class GameBoardUtils {
     }
     
     public static List<Vertex> findDangerous(GameBoard gameBoard) {
-        List<Vertex> result =  new ArrayList<>();
-        if(gameBoard.getMe().getHealth()>20) {
-            result.addAll(findSelfCollisionRiskFn(gameBoard));
-            result.addAll(findHeadToHeadRiskFn(gameBoard));
-        }
+        List<Vertex> result = findSelfCollisionRiskFn(gameBoard);
+        result.addAll(findHeadToHeadRiskFn(gameBoard));
         return result;
         
     }
@@ -91,6 +89,16 @@ public class GameBoardUtils {
         throw new RuntimeException("Trapped!!!");
     }
     
+    public static Optional<Vertex> findSafeNeighberVertex(int[][] distanceBoard, Vertex start) {
+        for (int[] dir : dirs) {
+            int y = start.getRow() + dir[0];
+            int x = start.getColumn() + dir[1];
+            if (distanceBoard[y][x] != Integer.MAX_VALUE) {
+                return Optional.of(Vertex.builder().row(y).column(x).build());
+            }
+        }
+        return Optional.empty();
+    }
     
     private static GameBoard markBorders(GameBoard gameBoard) {
         int[][] board = gameBoard.getBoard();
@@ -175,14 +183,18 @@ public class GameBoardUtils {
     private static List<Vertex> findSelfCollisionRiskFn(GameBoard gameBoard) {
         Snake me = gameBoard.getMe();
         Vertex head = me.getHead();
+        Vertex tail = me.getTail();
         
         Set<Vertex> risks = new HashSet<>();
         
         int headRow = head.getRow();
         int headColumn = head.getColumn();
+        int tailRow = tail.getRow();
+        int tailColumn = tail.getColumn();
         
         List<Vertex> inHeadRow = me.getBody().stream()
                                    .filter(node -> node.getRow() == headRow)
+                                   .filter(node -> node.getRow() != tailRow && node.getColumn() != tailColumn)
                                    .sorted(Comparator.comparingInt(v -> v.getColumn()))
                                    .collect(toList());
         
@@ -196,6 +208,7 @@ public class GameBoardUtils {
         
         List<Vertex> inHeadColumn = me.getBody().stream()
                                       .filter(node -> node.getColumn() == headColumn)
+                                      .filter(node -> node.getRow() != tailRow && node.getColumn() != tailColumn)
                                       .sorted(Comparator.comparingInt(v -> v.getRow()))
                                       .collect(toList());
         
@@ -206,7 +219,7 @@ public class GameBoardUtils {
                 risks.add(new Vertex(i, headColumn));
             }
         }
-        
+    
         return risks.stream().collect(toList());
         
     }

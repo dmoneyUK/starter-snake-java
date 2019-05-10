@@ -71,12 +71,21 @@ public class DistanceBoardUtils {
     private static int[][] getMyDistanceBoard(GameBoard gameBoard) {
        
         int[][] boardClone = GameBoardUtils.getBoardClone(gameBoard);
-        //PrintingUtils.printBoard(gameBoard.getBoard());
-        GameBoardUtils.findDangerous(gameBoard)
-                      .parallelStream()
-                      .forEach(dangerous -> GameBoardUtils.markDangerous(boardClone, dangerous));
+    
         //PrintingUtils.printBoard(boardClone);
-        return calculateDistanceBoard(boardClone, gameBoard.getMe().getHead());
+    
+        Snake me = gameBoard.getMe();
+        // If not grow in the next turn, current tail is safe.
+        if (!me.getTail().equals(me.getBody().get(me.getLength() - 2))) {
+            boardClone[me.getTail().getRow()][me.getTail().getColumn()] = 0;
+        }
+        if (me.getHealth() > 20) {
+            GameBoardUtils.findDangerous(gameBoard)
+                          .parallelStream()
+                          .forEach(dangerous -> GameBoardUtils.markDangerous(boardClone, dangerous));
+        }
+        PrintingUtils.printBoard(boardClone);
+        return calculateDistanceBoard(boardClone, me.getHead());
     }
     
     // DFS search to calculate the distance from the snake's head to each vertex on the game board.
