@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 import static io.battlesnake.starter.utils.DistanceBoardUtils.getAllSnakesDistanceBoards;
 import static io.battlesnake.starter.utils.DistanceBoardUtils.getDistance;
 import static io.battlesnake.starter.utils.GameBoardUtils.findEmptyNeighberVertex;
-import static io.battlesnake.starter.utils.GameBoardUtils.findSafeNeighberVertex;
+import static io.battlesnake.starter.utils.GameBoardUtils.findSafeVertexWithin;
 import static io.battlesnake.starter.utils.GameBoardUtils.hasFoodOnGameBoard;
 
 @Slf4j
@@ -63,7 +63,7 @@ public class MovementUtils {
             
             log.info("Chase tail");
             Vertex tail = me.getTail();
-            optionalTarget = findSafeNeighberVertex(myDistanceBoard, tail);
+            optionalTarget = findSafeVertexWithin(myDistanceBoard, tail);
             
         } else if (hasFoodOnGameBoard(gameBoard)) {
             optionalTarget = findFoodCloserToMeThanOthers(gameBoard.getFoodList(), snakesDistanceMap, currentPos);

@@ -72,7 +72,7 @@ public class DistanceBoardUtils {
        
         int[][] boardClone = GameBoardUtils.getBoardClone(gameBoard);
     
-        //PrintingUtils.printBoard(boardClone);
+        PrintingUtils.printBoard(boardClone);
     
         Snake me = gameBoard.getMe();
         // If not grow in the next turn, current tail is safe.

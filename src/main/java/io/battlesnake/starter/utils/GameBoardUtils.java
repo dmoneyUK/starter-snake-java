@@ -89,7 +89,10 @@ public class GameBoardUtils {
         throw new RuntimeException("Trapped!!!");
     }
     
-    public static Optional<Vertex> findSafeNeighberVertex(int[][] distanceBoard, Vertex start) {
+    public static Optional<Vertex> findSafeVertexWithin(int[][] distanceBoard, Vertex start) {
+        if(distanceBoard[start.getRow()][start.getColumn()]!=Integer.MAX_VALUE){
+            return Optional.of(start);
+        }
         for (int[] dir : dirs) {
             int y = start.getRow() + dir[0];
             int x = start.getColumn() + dir[1];
