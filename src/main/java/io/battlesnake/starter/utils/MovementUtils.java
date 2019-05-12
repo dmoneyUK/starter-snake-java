@@ -60,11 +60,12 @@ public class MovementUtils {
         
         // ChasingTail Strategy
         log.info("LENGTH: {}", length);
+    
         if (hasFoodOnGameBoard(gameBoard)) {
     
             if (length < 7) {
                 optionalTarget = findNearestFood(gameBoard.getFoodList(), myDistanceBoard);
-            } else {
+            } else if (me.getHealth() <= 20) {
                 optionalTarget = findFoodCloserToMeThanOthers(gameBoard.getFoodList(), snakesDistanceMap, currentPos);
             }
             // Move to some safe place, when:
@@ -87,7 +88,7 @@ public class MovementUtils {
             nextPos = backTrackNextPosition(myDistanceBoard, optionalTarget.get());
             return nextPos;
         }
-        
+    
         optionalTarget = DistanceBoardUtils.getFarthestVertex(myDistanceBoard);
         if (optionalTarget.isPresent()) {
             nextPos = backTrackNextPosition(myDistanceBoard, optionalTarget.get());
