@@ -69,9 +69,13 @@ public class MovementUtils {
                 nextPos = backTrackNextPosition(myDistanceBoard, optionalTarget.get());
                 return nextPos;
             }
-            
         } else if (hasFoodOnGameBoard(gameBoard)) {
-            optionalTarget = findFoodCloserToMeThanOthers(gameBoard.getFoodList(), snakesDistanceMap, currentPos);
+    
+            if (length < 7) {
+                optionalTarget = findNearestFood(gameBoard.getFoodList(), myDistanceBoard);
+            } else {
+                optionalTarget = findFoodCloserToMeThanOthers(gameBoard.getFoodList(), snakesDistanceMap, currentPos);
+            }
             // Move to some safe place, when:
             // a) Food has not be generated in the round when it is eaten,
             // b) No access to any food
