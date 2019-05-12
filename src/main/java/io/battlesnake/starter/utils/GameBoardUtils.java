@@ -57,9 +57,10 @@ public class GameBoardUtils {
     }
     
     public static List<Vertex> findDangerous(GameBoard gameBoard) {
-        List<Vertex> result = findSelfCollisionRiskFn(gameBoard);
-        result.addAll(findHeadToHeadRiskFn(gameBoard));
-        return result;
+        return findHeadToHeadRiskFn(gameBoard);
+        // /List<Vertex> result = findSelfCollisionRiskFn(gameBoard);
+        //result.addAll(findHeadToHeadRiskFn(gameBoard));
+        //return result;
         
     }
     
