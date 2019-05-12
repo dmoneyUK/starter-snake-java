@@ -9,10 +9,10 @@ import java.util.Map;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
-public class ShouldAvoidSelfTrap extends SnakeAppHandlerTest{
+public class ShouldAvoidSelfTrap extends SnakeAppHandlerTest {
     
     @Test
-    void shouldAvoidSelfCollisionAndMoveDown() throws IOException {
+    void shouldAvoidSelfTrap() throws IOException {
         String reqJson = JsonFixtures.read("fixtures/shouldAvoidSelfTrap.json");
         
         JsonNode request = JSON_MAPPER.readTree(reqJson);
@@ -21,5 +21,14 @@ public class ShouldAvoidSelfTrap extends SnakeAppHandlerTest{
         assertThat(response.get("move")).isEqualTo("up");
     }
     
-  
+    @Test
+    void shouldAvoidSelfTrap2() throws IOException {
+        String reqJson = JsonFixtures.read("fixtures/shouldAvoidSelfTrap2.json");
+        
+        JsonNode request = JSON_MAPPER.readTree(reqJson);
+        
+        Map<String, String> response = testObj.move(request);
+        assertThat(response.get("move")).isEqualTo("right");
+    }
+    
 }

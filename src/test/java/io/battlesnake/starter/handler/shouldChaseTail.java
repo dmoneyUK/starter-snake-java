@@ -41,6 +41,6 @@ class shouldChaseTail {
         JsonNode request = JSON_MAPPER.readTree(reqJson);
         
         Map<String, String> response = testObj.move(request);
-        assertThat(response.get("move")).isEqualTo("right");
+        assertThat(response.get("move")).isEqualTo("down");
     }
 }
