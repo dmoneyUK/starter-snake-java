@@ -11,10 +11,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static io.battlesnake.starter.utils.DistanceBoardUtils.findAvailableSpaceNearby;
 import static io.battlesnake.starter.utils.DistanceBoardUtils.getAllSnakesDistanceBoards;
 import static io.battlesnake.starter.utils.DistanceBoardUtils.getDistance;
 import static io.battlesnake.starter.utils.GameBoardUtils.findEmptyNeighberVertex;
-import static io.battlesnake.starter.utils.GameBoardUtils.findSafeVertexWithin;
+import static io.battlesnake.starter.utils.GameBoardUtils.findSafeVertexWithinTargetRound;
 import static io.battlesnake.starter.utils.GameBoardUtils.hasFoodOnGameBoard;
 
 @Slf4j
@@ -63,26 +64,44 @@ public class MovementUtils {
             
             log.info("Chase tail");
             Vertex tail = me.getTail();
-            optionalTarget = findSafeVertexWithin(myDistanceBoard, tail);
+            optionalTarget = findSafeVertexWithinTargetRound(myDistanceBoard, tail);
+            nextPos = backTrackNextPosition(myDistanceBoard, optionalTarget.get());
+            return nextPos;
             
         } else if (hasFoodOnGameBoard(gameBoard)) {
             optionalTarget = findFoodCloserToMeThanOthers(gameBoard.getFoodList(), snakesDistanceMap, currentPos);
+            // Move to some safe place, when:
+            // a) Food has not be generated in the round when it is eaten,
+            // b) No access to any food
+            if (optionalTarget.isPresent()) {
+                nextPos = backTrackNextPosition(myDistanceBoard, optionalTarget.get());
+                // double check next pos
+                long availableSpaceNearby = findAvailableSpaceNearby(gameBoard, nextPos);
+                if (availableSpaceNearby >= me.getLength()) {
+                    return nextPos;
+                }
+            }
         }
         
         // Move to some safe place, when:
         // a) Food has not be generated in the round when it is eaten,
         // b) No access to any food
+        //if (optionalTarget.isPresent()) {
+        //    nextPos = backTrackNextPosition(myDistanceBoard, optionalTarget.get());
+        //    // double check next pos
+        //    long availableSpaceNearby = findAvailableSpaceNearby(gameBoard, nextPos);
+        //    if (availableSpaceNearby >= me.getLength()) {
+        //        return nextPos;
+        //    }
+        //}
+    
+        optionalTarget = DistanceBoardUtils.getFarthestVertex(myDistanceBoard);
         if (optionalTarget.isPresent()) {
             nextPos = backTrackNextPosition(myDistanceBoard, optionalTarget.get());
         } else {
-            optionalTarget = DistanceBoardUtils.getFarthestVertex(myDistanceBoard);
-            if (optionalTarget.isPresent()) {
-                nextPos = backTrackNextPosition(myDistanceBoard, optionalTarget.get());
-            } else {
-                nextPos = findEmptyNeighberVertex(gameBoard.getBoard(), currentPos);
-            }
+            nextPos = findEmptyNeighberVertex(gameBoard.getBoard(), currentPos);
         }
-        
+    
         return nextPos;
     }
     

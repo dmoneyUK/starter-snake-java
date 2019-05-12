@@ -67,12 +67,22 @@ public class DistanceBoardUtils {
         
     }
     
+    public static long findAvailableSpaceNearby(GameBoard gameBoard, Vertex start) {
+        int[][] distanceBoard = calculateDistanceBoard(gameBoard.getBoard(), start);
+        long count = Arrays.stream(distanceBoard)
+                           .flatMapToInt(Arrays::stream)
+                           .filter(i -> i != Integer.MAX_VALUE)
+                           .count();
+        
+        return count;
+    }
+    
     // Get the distance board for me. This takes consideration of the dangerous areas on the game board.
     private static int[][] getMyDistanceBoard(GameBoard gameBoard) {
        
         int[][] boardClone = GameBoardUtils.getBoardClone(gameBoard);
     
-        PrintingUtils.printBoard(boardClone);
+        //PrintingUtils.printBoard(boardClone);
     
         Snake me = gameBoard.getMe();
         // If not grow in the next turn, current tail is safe.
@@ -84,7 +94,7 @@ public class DistanceBoardUtils {
                           .parallelStream()
                           .forEach(dangerous -> GameBoardUtils.markDangerous(boardClone, dangerous));
         }
-        PrintingUtils.printBoard(boardClone);
+        //PrintingUtils.printBoard(boardClone);
         return calculateDistanceBoard(boardClone, me.getHead());
     }
     
