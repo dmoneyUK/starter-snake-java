@@ -1,7 +1,9 @@
 package io.battlesnake.starter.utils;
 
 import io.battlesnake.starter.model.GameBoard;
+import io.battlesnake.starter.model.Snake;
 import io.battlesnake.starter.model.Vertex;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,13 +14,16 @@ import java.util.stream.Collectors;
 import static io.battlesnake.starter.utils.DistanceBoardUtils.getAllSnakesDistanceBoards;
 import static io.battlesnake.starter.utils.DistanceBoardUtils.getDistance;
 import static io.battlesnake.starter.utils.GameBoardUtils.findEmptyNeighberVertex;
+import static io.battlesnake.starter.utils.GameBoardUtils.findSafeVertexWithin;
 import static io.battlesnake.starter.utils.GameBoardUtils.hasFoodOnGameBoard;
 
+@Slf4j
 public class MovementUtils {
     private static int[][] dirs = {{1, 0}, {-1, 0}, {0, -1}, {0, 1}};
     
-    public static String findNextMovement(GameBoard gameBoard, Vertex me) {
+    public static String findNextMovement(GameBoard gameBoard) {
         
+        Vertex me = gameBoard.getMe().getHead();
         Vertex nextPos = findNextPosition(gameBoard, me);
         
         int y = nextPos.getRow() - me.getRow();
@@ -39,17 +44,29 @@ public class MovementUtils {
     }
     
     // Find the location (a vertex) to move to.
-    private static Vertex findNextPosition(GameBoard gameBoard, Vertex me) {
+    private static Vertex findNextPosition(GameBoard gameBoard, Vertex currentPos) {
         Vertex nextPos = null;
         
         // Calculate the distance board for all snakes
         Map<Vertex, int[][]> snakesDistanceMap = getAllSnakesDistanceBoards(gameBoard);
-        int[][] myDistanceBoard = snakesDistanceMap.get(me);
+        int[][] myDistanceBoard = snakesDistanceMap.get(currentPos);
         
         //TODO: strategy here
         Optional<Vertex> optionalTarget = Optional.empty();
-        if (hasFoodOnGameBoard(gameBoard)) {
-            optionalTarget = findFoodCloserToMeThanOthers(gameBoard.getFoodList(), snakesDistanceMap, me);
+        
+        Snake me = gameBoard.getMe();
+        int length = me.getBody().size();
+        
+        // ChasingTail Strategy
+        log.info("LENGTH: {}", length);
+        if (me.getHealth() >= 20 && length >= 20) {
+            
+            log.info("Chase tail");
+            Vertex tail = me.getTail();
+            optionalTarget = findSafeVertexWithin(myDistanceBoard, tail);
+            
+        } else if (hasFoodOnGameBoard(gameBoard)) {
+            optionalTarget = findFoodCloserToMeThanOthers(gameBoard.getFoodList(), snakesDistanceMap, currentPos);
         }
         
         // Move to some safe place, when:
@@ -62,7 +79,7 @@ public class MovementUtils {
             if (optionalTarget.isPresent()) {
                 nextPos = backTrackNextPosition(myDistanceBoard, optionalTarget.get());
             } else {
-                nextPos = findEmptyNeighberVertex(gameBoard.getBoard(), me);
+                nextPos = findEmptyNeighberVertex(gameBoard.getBoard(), currentPos);
             }
         }
         
