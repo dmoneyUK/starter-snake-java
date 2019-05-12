@@ -60,16 +60,7 @@ public class MovementUtils {
         
         // ChasingTail Strategy
         log.info("LENGTH: {}", length);
-        if (me.getHealth() >= 20 && length >= 20) {
-            
-            log.info("Chase tail");
-            Vertex tail = me.getTail();
-            optionalTarget = findSafeVertexWithinTargetRound(myDistanceBoard, tail);
-            if (optionalTarget.isPresent()) {
-                nextPos = backTrackNextPosition(myDistanceBoard, optionalTarget.get());
-                return nextPos;
-            }
-        } else if (hasFoodOnGameBoard(gameBoard)) {
+        if (hasFoodOnGameBoard(gameBoard)) {
     
             if (length < 7) {
                 optionalTarget = findNearestFood(gameBoard.getFoodList(), myDistanceBoard);
@@ -88,19 +79,15 @@ public class MovementUtils {
                 }
             }
         }
-        
-        // Move to some safe place, when:
-        // a) Food has not be generated in the round when it is eaten,
-        // b) No access to any food
-        //if (optionalTarget.isPresent()) {
-        //    nextPos = backTrackNextPosition(myDistanceBoard, optionalTarget.get());
-        //    // double check next pos
-        //    long availableSpaceNearby = findAvailableSpaceNearby(gameBoard, nextPos);
-        //    if (availableSpaceNearby >= me.getLength()) {
-        //        return nextPos;
-        //    }
-        //}
     
+        log.info("Chase tail");
+        Vertex tail = me.getTail();
+        optionalTarget = findSafeVertexWithinTargetRound(myDistanceBoard, tail);
+        if (optionalTarget.isPresent()) {
+            nextPos = backTrackNextPosition(myDistanceBoard, optionalTarget.get());
+            return nextPos;
+        }
+        
         optionalTarget = DistanceBoardUtils.getFarthestVertex(myDistanceBoard);
         if (optionalTarget.isPresent()) {
             nextPos = backTrackNextPosition(myDistanceBoard, optionalTarget.get());
