@@ -65,8 +65,10 @@ public class MovementUtils {
             log.info("Chase tail");
             Vertex tail = me.getTail();
             optionalTarget = findSafeVertexWithinTargetRound(myDistanceBoard, tail);
-            nextPos = backTrackNextPosition(myDistanceBoard, optionalTarget.get());
-            return nextPos;
+            if (optionalTarget.isPresent()) {
+                nextPos = backTrackNextPosition(myDistanceBoard, optionalTarget.get());
+                return nextPos;
+            }
             
         } else if (hasFoodOnGameBoard(gameBoard)) {
             optionalTarget = findFoodCloserToMeThanOthers(gameBoard.getFoodList(), snakesDistanceMap, currentPos);
