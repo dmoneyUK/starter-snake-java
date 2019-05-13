@@ -63,9 +63,11 @@ public class MovementUtils {
     
         if (hasFoodOnGameBoard(gameBoard)) {
     
-            if (length < 7) {
+            if (length < 10 || me.getHealth() <= 30) {
+                log.info("##### findNearestFood");
                 optionalTarget = findNearestFood(gameBoard.getFoodList(), myDistanceBoard);
-            } else if (me.getHealth() <= 20) {
+            } else {
+                log.info("##### findFoodCloserToMeThanOthers");
                 optionalTarget = findFoodCloserToMeThanOthers(gameBoard.getFoodList(), snakesDistanceMap, currentPos);
             }
             // Move to some safe place, when:
