@@ -1,0 +1,126 @@
+package io.battlesnake.starter.service.strategy;
+
+import io.battlesnake.starter.model.GameBoard;
+import io.battlesnake.starter.model.Snake;
+import io.battlesnake.starter.model.Vertex;
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.BiFunction;
+import java.util.stream.Collectors;
+
+import static io.battlesnake.starter.service.strategy.StrategyResult.STRATEGY_FAILURE;
+import static io.battlesnake.starter.utils.DistanceBoardUtils.findAvailableSpaceNearby;
+import static io.battlesnake.starter.utils.DistanceBoardUtils.getFarthestVertex;
+import static io.battlesnake.starter.utils.GameBoardUtils.findEmptyNeighberVertex;
+import static io.battlesnake.starter.utils.GameBoardUtils.findSafeVertexWithinTargetRound;
+import static io.battlesnake.starter.utils.MovementUtils.backTrackNextPosition;
+import static io.battlesnake.starter.utils.MovementUtils.findNearestFood;
+import static io.battlesnake.starter.utils.MovementUtils.isCloserToMe;
+
+@Slf4j
+public class StrategyFn {
+    
+    static BiFunction<GameState, Optional<Vertex>, StrategyResult> eagerFoodCheck = (gameState, optionalTarget) -> {
+        log.info("eagerFoodCheck");
+        Snake me = gameState.getGameBoard().getMe();
+        if (me.getHealth() <= 30) {
+            return StrategyResult.builder().success(true).build();
+        }
+        
+        return STRATEGY_FAILURE;
+    };
+    
+    static BiFunction<GameState, Optional<Vertex>, StrategyResult> lenghtCheck = (gameState, optionalTarget) -> {
+        log.info("lenghtCheck");
+        Snake me = gameState.getGameBoard().getMe();
+        if (me.getLength() > 10) {
+            return StrategyResult.builder().success(true).build();
+        }
+        
+        return STRATEGY_FAILURE;
+    };
+    
+    static BiFunction<GameState, Optional<Vertex>, StrategyResult> findNearestFoodStrategy = (gameState, optionalPara) -> {
+        log.info("findNearestFoodStrategy");
+        GameBoard gameBoard = gameState.getGameBoard();
+        int[][] distanceBoard = gameState.getSnakesDistanceBoardMap().get(gameBoard.getMe().getHead());
+        List<Vertex> foodList = gameBoard.getFoodList();
+        
+        return findNearestFood(foodList, distanceBoard)
+                .map(v -> StrategyResult.builder().success(true).target(v).build())
+                .orElse(STRATEGY_FAILURE);
+        
+    };
+    
+    static BiFunction<GameState, Optional<Vertex>, StrategyResult> stealOthersFoodStrategy = (gameState, optionalPara) -> {
+        log.info("stealOthersFoodStrategy");
+        
+        GameBoard gameBoard = gameState.getGameBoard();
+        Map<Vertex, int[][]> snakesDistanceBoardMap = gameState.getSnakesDistanceBoardMap();
+        // Find the nearest food of each snake.
+        Map<Vertex, Optional<Vertex>> snakesNearestFoodMap
+                = snakesDistanceBoardMap.entrySet()
+                                        .parallelStream()
+                                        .collect(Collectors.toMap(entry -> entry.getKey(),
+                                                                  entry -> findNearestFood(
+                                                                          gameBoard.getFoodList(),
+                                                                          entry.getValue())));
+        
+        // From other snakes nearest food, try to find one closer to me. If cannot find any, return my nearest food.
+        Vertex head = gameBoard.getMe().getHead();
+        return snakesNearestFoodMap.entrySet()
+                            .parallelStream()
+                            .filter(entry -> entry.getValue().isPresent()) // the snake has nearest food
+                            .filter(entry -> isCloserToMe(snakesDistanceBoardMap, head, entry.getKey(),
+                                                          entry.getValue().get())) //the food is closer to me
+                            .findFirst().map(entry -> entry.getValue())
+                            .orElse(snakesNearestFoodMap.get(head))
+                            .map(food -> StrategyResult.builder().success(true).target(food).build())
+                            .orElse(STRATEGY_FAILURE);
+        
+    };
+    
+    static BiFunction<GameState, Optional<Vertex>, StrategyResult> chaseTailStrategy = (gameState, optionalPara) -> {
+        log.info("chaseTailStrategy");
+        GameBoard gameBoard = gameState.getGameBoard();
+        int[][] myDistanceBoard = gameState.getSnakesDistanceBoardMap().get(gameBoard.getMe().getHead());
+        Vertex tail = gameState.getGameBoard().getMe().getTail();
+        
+        return findSafeVertexWithinTargetRound(myDistanceBoard, tail)
+                .map(v -> StrategyResult.builder().success(true).target(v).build())
+                .orElse(STRATEGY_FAILURE);
+    };
+    
+    static BiFunction<GameState, Optional<Vertex>, StrategyResult> goFurthestStrategy = (gameState, optionalPara) -> {
+        log.info("goFurthestStrategy");
+        GameBoard gameBoard = gameState.getGameBoard();
+        int[][] myDistanceBoard = gameState.getSnakesDistanceBoardMap().get(gameBoard.getMe().getHead());
+        return getFarthestVertex(myDistanceBoard)
+                .map(v -> StrategyResult.builder().success(true).target(v).build())
+                .orElse(STRATEGY_FAILURE);
+        
+    };
+    
+    static BiFunction<GameState, Optional<Vertex>, StrategyResult> findEmptyNeighberStrategy = (gameState, optionalPara) -> {
+        GameBoard gameBoard = gameState.getGameBoard();
+        Vertex nextPos = findEmptyNeighberVertex(gameBoard.getBoard(), gameBoard.getMe().getHead());
+        return StrategyResult.builder().success(true).target(nextPos).build();
+        
+    };
+    
+    //TODO: improve the safe guard
+    static BiFunction<GameState, Optional<Vertex>, StrategyResult> safeGuardStrategy = (gameState, optionalPara) -> {
+        log.info("safeGuardStrategy");
+        GameBoard gameBoard = gameState.getGameBoard();
+        int[][] myDistanceBoard = gameState.getSnakesDistanceBoardMap().get(gameBoard.getMe().getHead());
+        Vertex nextPos = backTrackNextPosition(myDistanceBoard, optionalPara.get());
+        // double check next pos
+        return findAvailableSpaceNearby(gameBoard, nextPos) >= gameBoard.getMe().getLength() - 1 ?
+                StrategyResult.builder().success(true).target(nextPos).build() :
+                STRATEGY_FAILURE;
+    };
+    
+}

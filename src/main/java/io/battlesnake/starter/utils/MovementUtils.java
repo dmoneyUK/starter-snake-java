@@ -44,7 +44,7 @@ public class MovementUtils {
         return nextStep;
     }
     
-    // Find the location (a vertex) to move to.
+    // Find the location (a target) to move to.
     private static Vertex findNextPosition(GameBoard gameBoard, Vertex currentPos) {
         Vertex nextPos = null;
         
@@ -58,7 +58,7 @@ public class MovementUtils {
         Snake me = gameBoard.getMe();
         int length = me.getBody().size();
         
-        // ChasingTail Strategy
+        // ChasingTail StrategyFn
         log.info("LENGTH: {}", length);
     
         if (hasFoodOnGameBoard(gameBoard)) {
@@ -101,7 +101,7 @@ public class MovementUtils {
         return nextPos;
     }
     
-    private static Vertex backTrackNextPosition(int[][] myDistanceBoard, Vertex target) {
+    public static Vertex backTrackNextPosition(int[][] myDistanceBoard, Vertex target) {
         List<Vertex> path = backTrackPath(target, myDistanceBoard);
         return path.get(path.size() - 1);
     }
@@ -129,45 +129,49 @@ public class MovementUtils {
         return path;
     }
     
-    /* ########################## Greedy Strategy ########################## */
+    /* ########################## Greedy StrategyFn ########################## */
     private static Optional<Vertex> findFoodCloserToMeThanOthers(List<Vertex> foodList, Map<Vertex, int[][]> snakesDistanceBoard,
                                                                  Vertex me) {
         
         // Find the nearest food of each snake.
-        Map<Vertex, Optional<Vertex>> snakesNearestFoodMap = snakesDistanceBoard
-                .entrySet()
-                .parallelStream()
-                .collect(Collectors.toMap(entry -> entry.getKey(), entry -> findNearestFood(foodList, entry.getValue())));
+        Optional<Vertex> ans = Optional.empty();
+        if (!foodList.isEmpty()) {
+            Map<Vertex, Optional<Vertex>> snakesNearestFoodMap = snakesDistanceBoard
+                    .entrySet()
+                    .parallelStream()
+                    .collect(Collectors.toMap(entry -> entry.getKey(), entry -> findNearestFood(foodList, entry.getValue())));
         
-        Optional<Vertex> ans = snakesNearestFoodMap.get(me);
-        // From other snakes nearest food, try to find one closer to me. If cannot find any, return my nearest food.
-        ans = snakesNearestFoodMap.entrySet()
-                                  .parallelStream()
-                                  .filter(entry -> entry.getValue().isPresent()) // the snake has nearest food
-                                  .filter(entry -> isCloserToMe(snakesDistanceBoard, me, entry.getKey(),
-                                                                entry.getValue().get())) //the food is closer to me
-                                  .findFirst()
-                                  .map(entry -> entry.getValue())
-                                  .orElse(ans);
+            // From other snakes nearest food, try to find one closer to me. If cannot find any, return my nearest food.
+            ans = snakesNearestFoodMap.entrySet()
+                                      .parallelStream()
+                                      .filter(entry -> entry.getValue().isPresent()) // the snake has nearest food
+                                      .filter(entry -> isCloserToMe(snakesDistanceBoard, me, entry.getKey(),
+                                                                    entry.getValue().get())) //the food is closer to me
+                                      .findFirst()
+                                      .map(entry -> entry.getValue())
+                                      .orElse(snakesNearestFoodMap.get(me));
+        }
         return ans;
     }
     
-    private static Optional<Vertex> findNearestFood(List<Vertex> foodList, int[][] distance) {
+    public static Optional<Vertex> findNearestFood(List<Vertex> foodList, int[][] distance) {
         
         Optional<Vertex> ans = Optional.empty();
-        int min = Integer.MAX_VALUE;
-        int dis;
-        for (Vertex food : foodList) {
-            dis = distance[food.getRow()][food.getColumn()];
-            if (dis < min) {
-                min = dis;
-                ans = Optional.of(food);
+        if (!foodList.isEmpty()) {
+            int min = Integer.MAX_VALUE;
+            int dis;
+            for (Vertex food : foodList) {
+                dis = distance[food.getRow()][food.getColumn()];
+                if (dis < min) {
+                    min = dis;
+                    ans = Optional.of(food);
+                }
             }
         }
         return ans;
     }
     
-    private static boolean isCloserToMe(Map<Vertex, int[][]> snakesDistanceBoardMap, Vertex me, Vertex other, Vertex food) {
+    public static boolean isCloserToMe(Map<Vertex, int[][]> snakesDistanceBoardMap, Vertex me, Vertex other, Vertex food) {
         return getDistance(snakesDistanceBoardMap.get(me), food) < getDistance(snakesDistanceBoardMap.get(other), food);
     }
     /* ######################################################################### */

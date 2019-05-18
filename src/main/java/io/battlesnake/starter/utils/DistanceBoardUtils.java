@@ -78,7 +78,7 @@ public class DistanceBoardUtils {
     }
     
     // Get the distance board for me. This takes consideration of the dangerous areas on the game board.
-    private static int[][] getMyDistanceBoard(GameBoard gameBoard) {
+    public static int[][] getMyDistanceBoard(GameBoard gameBoard) {
        
         int[][] boardClone = GameBoardUtils.getBoardClone(gameBoard);
     
@@ -98,7 +98,7 @@ public class DistanceBoardUtils {
         return calculateDistanceBoard(boardClone, me.getHead());
     }
     
-    // DFS search to calculate the distance from the snake's head to each vertex on the game board.
+    // DFS search to calculate the distance from the snake's head to each target on the game board.
     private static int[][] calculateDistanceBoard(int[][] board, Vertex snakeHead) {
         int[][] distance = createDistanceBoard(board.length);
         

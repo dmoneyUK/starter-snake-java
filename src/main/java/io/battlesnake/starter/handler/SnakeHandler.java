@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.battlesnake.starter.SnakeApp;
 import io.battlesnake.starter.model.GameBoard;
-import io.battlesnake.starter.pathsolver.FoodPathSolver;
+import io.battlesnake.starter.pathsolver.PathSolverImpl;
 import io.battlesnake.starter.pathsolver.PathSolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +25,7 @@ public class SnakeHandler {
     private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
     private static final Map<String, String> EMPTY = new HashMap<>();
     private static final Logger LOG = LoggerFactory.getLogger(SnakeApp.class);
-    private static final PathSolver pathSolver = new FoodPathSolver();
+    private static final PathSolver pathSolver = new PathSolverImpl();
     
 
     /**
