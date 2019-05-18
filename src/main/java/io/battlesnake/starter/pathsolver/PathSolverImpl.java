@@ -3,11 +3,11 @@ package io.battlesnake.starter.pathsolver;
 import io.battlesnake.starter.model.GameBoard;
 import io.battlesnake.starter.model.Vertex;
 import io.battlesnake.starter.service.strategy.StrategyService;
-import io.battlesnake.starter.utils.MovementUtils;
 
 import java.util.Map;
 
 import static io.battlesnake.starter.utils.DistanceBoardUtils.getAllSnakesDistanceBoards;
+import static io.battlesnake.starter.utils.MovementUtils.backTrack;
 
 public class PathSolverImpl implements PathSolver {
     
@@ -48,7 +48,7 @@ public class PathSolverImpl implements PathSolver {
         StrategyService strategyService = new StrategyService();
         Vertex target = strategyService.makeDecision(gameBoard, snakesDistanceMap);
         
-        return MovementUtils.backTrackNextPosition(myDistanceBoard, target);
+        return backTrack(myDistanceBoard, target);
     }
     
 }

@@ -13,12 +13,11 @@ import java.util.stream.Collectors;
 
 import static io.battlesnake.starter.service.strategy.StrategyResult.STRATEGY_FAILURE;
 import static io.battlesnake.starter.utils.DistanceBoardUtils.findAvailableSpaceNearby;
+import static io.battlesnake.starter.utils.DistanceBoardUtils.getDistance;
 import static io.battlesnake.starter.utils.DistanceBoardUtils.getFarthestVertex;
 import static io.battlesnake.starter.utils.GameBoardUtils.findEmptyNeighberVertex;
 import static io.battlesnake.starter.utils.GameBoardUtils.findSafeVertexWithinTargetRound;
-import static io.battlesnake.starter.utils.MovementUtils.backTrackNextPosition;
-import static io.battlesnake.starter.utils.MovementUtils.findNearestFood;
-import static io.battlesnake.starter.utils.MovementUtils.isCloserToMe;
+import static io.battlesnake.starter.utils.MovementUtils.backTrack;
 
 @Slf4j
 public class StrategyFn {
@@ -116,11 +115,32 @@ public class StrategyFn {
         log.info("safeGuardStrategy");
         GameBoard gameBoard = gameState.getGameBoard();
         int[][] myDistanceBoard = gameState.getSnakesDistanceBoardMap().get(gameBoard.getMe().getHead());
-        Vertex nextPos = backTrackNextPosition(myDistanceBoard, optionalPara.get());
+        Vertex nextPos = backTrack(myDistanceBoard, optionalPara.get());
         // double check next pos
         return findAvailableSpaceNearby(gameBoard, nextPos) >= gameBoard.getMe().getLength() - 1 ?
                 StrategyResult.builder().success(true).target(nextPos).build() :
                 STRATEGY_FAILURE;
     };
+    
+    static Optional<Vertex> findNearestFood(List<Vertex> foodList, int[][] distance) {
+        
+        Optional<Vertex> ans = Optional.empty();
+        if (!foodList.isEmpty()) {
+            int min = Integer.MAX_VALUE;
+            int dis;
+            for (Vertex food : foodList) {
+                dis = distance[food.getRow()][food.getColumn()];
+                if (dis < min) {
+                    min = dis;
+                    ans = Optional.of(food);
+                }
+            }
+        }
+        return ans;
+    }
+    
+    static boolean isCloserToMe(Map<Vertex, int[][]> snakesDistanceBoardMap, Vertex me, Vertex other, Vertex food) {
+        return getDistance(snakesDistanceBoardMap.get(me), food) < getDistance(snakesDistanceBoardMap.get(other), food);
+    }
     
 }
