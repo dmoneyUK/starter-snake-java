@@ -13,6 +13,7 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 
 public class DistanceBoardUtils {
+    public static final Vertex riskyMe = Vertex.builder().build();
     private static int[][] dirs = {{1, 0}, {-1, 0}, {0, -1}, {0, 1}};
     
     public static int[][] createDistanceBoard(int length) {
@@ -51,18 +52,21 @@ public class DistanceBoardUtils {
     }
     
     public static Map<Vertex, int[][]> getAllSnakesDistanceBoards(GameBoard gameBoard) {
-        
-        int[][] myDistanceBoard = getMyDistanceBoard(gameBoard);
+    
+        int[][] mySafeDistanceBoard = getMyDistanceBoard(gameBoard, true);
+        int[][] myRiskyDistanceBoard = getMyDistanceBoard(gameBoard, false);
         
         Snake me = gameBoard.getMe();
         Map<Vertex, int[][]> allSnakesDistanceBoards = gameBoard.getSnakes()
                                                                 .parallelStream()
-                                                                .filter(snake -> !snake.equals(me))
+                                                                .filter(snake -> !snake.equals(me) && !snake.equals(
+                                                                        riskyMe))
                                                                 .map(Snake::getHead)
                                                                 .collect(toMap(identity(),
                                                                                head -> calculateDistanceBoard(gameBoard.getBoard(), head)));
-        
-        allSnakesDistanceBoards.put(me.getHead(), myDistanceBoard);
+    
+        allSnakesDistanceBoards.put(me.getHead(), mySafeDistanceBoard);
+        allSnakesDistanceBoards.put(riskyMe, myRiskyDistanceBoard);
         return allSnakesDistanceBoards;
         
     }
@@ -79,7 +83,7 @@ public class DistanceBoardUtils {
     }
     
     // Get the distance board for me. This takes consideration of the dangerous areas on the game board.
-    public static int[][] getMyDistanceBoard(GameBoard gameBoard) {
+    public static int[][] getMyDistanceBoard(GameBoard gameBoard, boolean takeRisk) {
        
         int[][] boardClone = GameBoardUtils.getBoardClone(gameBoard);
     
@@ -111,7 +115,7 @@ public class DistanceBoardUtils {
             }
     
         }
-        if (me.getHealth() > 20) {
+        if (!takeRisk) {
             GameBoardUtils.findDangerous(gameBoard)
                           .parallelStream()
                           .forEach(dangerous -> GameBoardUtils.markDangerous(boardClone, dangerous));

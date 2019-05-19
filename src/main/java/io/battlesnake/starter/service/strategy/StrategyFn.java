@@ -15,6 +15,7 @@ import static io.battlesnake.starter.service.strategy.StrategyResult.STRATEGY_FA
 import static io.battlesnake.starter.utils.DistanceBoardUtils.findAvailableSpaceNearby;
 import static io.battlesnake.starter.utils.DistanceBoardUtils.getDistance;
 import static io.battlesnake.starter.utils.DistanceBoardUtils.getFarthestVertex;
+import static io.battlesnake.starter.utils.DistanceBoardUtils.riskyMe;
 import static io.battlesnake.starter.utils.GameBoardUtils.findEmptyNeighberVertex;
 import static io.battlesnake.starter.utils.GameBoardUtils.findSafeVertexWithinTargetRound;
 import static io.battlesnake.starter.utils.MovementUtils.backTrack;
@@ -68,6 +69,7 @@ public class StrategyFn {
         Map<Vertex, Optional<Vertex>> snakesNearestFoodMap
                 = snakesDistanceBoardMap.entrySet()
                                         .parallelStream()
+                                        .filter(entry -> !entry.getKey().equals(riskyMe))
                                         .collect(Collectors.toMap(entry -> entry.getKey(),
                                                                   entry -> findNearestFood(
                                                                           gameBoard.getFoodList(),
@@ -102,6 +104,15 @@ public class StrategyFn {
         log.info("goFurthestStrategy");
         GameBoard gameBoard = gameState.getGameBoard();
         int[][] myDistanceBoard = gameState.getSnakesDistanceBoardMap().get(gameBoard.getMe().getHead());
+        return getFarthestVertex(myDistanceBoard)
+                .map(v -> StrategyResult.builder().success(true).target(v).build())
+                .orElse(STRATEGY_FAILURE);
+        
+    };
+    
+    static BiFunction<GameState, Optional<Vertex>, StrategyResult> goRiskyFurthestStrategy = (gameState, optionalPara) -> {
+        log.info("goFurthestStrategy");
+        int[][] myDistanceBoard = gameState.getSnakesDistanceBoardMap().get(riskyMe);
         return getFarthestVertex(myDistanceBoard)
                 .map(v -> StrategyResult.builder().success(true).target(v).build())
                 .orElse(STRATEGY_FAILURE);

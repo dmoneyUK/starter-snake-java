@@ -58,9 +58,6 @@ public class GameBoardUtils {
     
     public static List<Vertex> findDangerous(GameBoard gameBoard) {
         return findHeadToHeadRiskFn(gameBoard);
-        // /List<Vertex> result = findSelfCollisionRiskFn(gameBoard);
-        //result.addAll(findHeadToHeadRiskFn(gameBoard));
-        //return result;
         
     }
     
@@ -73,10 +70,6 @@ public class GameBoardUtils {
     
     public static void markDangerous(int[][] board, Vertex dangerous) {
         board[dangerous.getRow()][dangerous.getColumn()] = 1;
-    }
-    
-    public static boolean hasFoodOnGameBoard(GameBoard gameBoard) {
-        return !gameBoard.getFoodList().isEmpty();
     }
     
     public static Vertex findEmptyNeighberVertex(int[][] board, Vertex start) {

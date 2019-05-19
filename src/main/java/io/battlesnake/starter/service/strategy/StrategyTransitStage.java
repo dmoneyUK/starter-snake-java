@@ -20,7 +20,9 @@ class StrategyTransitStage {
         FOUND_FOOD,
         NO_FOOD,
         DECIDED,
-        TRAPPED,
+        CANNOT_REACH_TAIL,
+        FOUND_FURTHEST,
+        NO_SAFE_EXIT,
         NO_EXIT;
     }
     
