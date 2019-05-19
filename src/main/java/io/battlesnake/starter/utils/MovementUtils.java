@@ -11,7 +11,7 @@ public class MovementUtils {
     private static int[][] dirs = {{1, 0}, {-1, 0}, {0, -1}, {0, 1}};
     
     public static Vertex backTrack(int[][] myDistanceBoard, Vertex target) {
-        int dis = myDistanceBoard[target.getRow()][target.getColumn()];
+            int dis = myDistanceBoard[target.getRow()][target.getColumn()];
         if (dis == Integer.MAX_VALUE) {
             return null;
         }

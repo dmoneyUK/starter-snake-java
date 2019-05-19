@@ -25,10 +25,15 @@ public class StrategyFn {
     static BiFunction<GameState, Optional<Vertex>, StrategyResult> eagerFoodCheck = (gameState, optionalTarget) -> {
         log.info("eagerFoodCheck");
         Snake me = gameState.getGameBoard().getMe();
-        if (me.getHealth() <= 30) {
+        int[][] myDistanceBoard = gameState.getSnakesDistanceBoardMap().get(me.getHead());
+        boolean canWait = gameState.getGameBoard().getFoodList()
+                                   .parallelStream()
+                                   .anyMatch(food -> me.getHealth() - myDistanceBoard[food.getRow()][food.getColumn()] > Integer.min(
+                                           me.getLength() / 2, 10));
+        if (!canWait) {
             return StrategyResult.builder().success(true).build();
         }
-        
+    
         return STRATEGY_FAILURE;
     };
     
@@ -103,7 +108,7 @@ public class StrategyFn {
         
     };
     
-    static BiFunction<GameState, Optional<Vertex>, StrategyResult> findEmptyNeighberStrategy = (gameState, optionalPara) -> {
+    static BiFunction<GameState, Optional<Vertex>, StrategyResult> goEmptyNeighberStrategy = (gameState, optionalPara) -> {
         GameBoard gameBoard = gameState.getGameBoard();
         Vertex nextPos = findEmptyNeighberVertex(gameBoard.getBoard(), gameBoard.getMe().getHead());
         return StrategyResult.builder().success(true).target(nextPos).build();
@@ -114,10 +119,12 @@ public class StrategyFn {
     static BiFunction<GameState, Optional<Vertex>, StrategyResult> safeGuardStrategy = (gameState, optionalPara) -> {
         log.info("safeGuardStrategy");
         GameBoard gameBoard = gameState.getGameBoard();
-        int[][] myDistanceBoard = gameState.getSnakesDistanceBoardMap().get(gameBoard.getMe().getHead());
+        Snake me = gameBoard.getMe();
+        int[][] myDistanceBoard = gameState.getSnakesDistanceBoardMap().get(me.getHead());
         Vertex nextPos = backTrack(myDistanceBoard, optionalPara.get());
         // double check next pos
-        return findAvailableSpaceNearby(gameBoard, nextPos) >= gameBoard.getMe().getLength() - 1 ?
+    
+        return findAvailableSpaceNearby(gameBoard, nextPos) >= me.getLength() - 1 ?
                 StrategyResult.builder().success(true).target(nextPos).build() :
                 STRATEGY_FAILURE;
     };

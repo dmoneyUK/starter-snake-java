@@ -81,4 +81,14 @@ public class ShouldAvoidSelfCollision extends SnakeAppHandlerTest{
     //    Map<String, String> response = testObj.move(request);
     //    assertThat(response.get("move")).isEqualTo("down");
     //}
+    
+    @Test
+    void shouldAvoidSelfCollision8() throws IOException {
+        String reqJson = JsonFixtures.read("fixtures/shouldAvoidSelfCollision8.json");
+        
+        JsonNode request = JSON_MAPPER.readTree(reqJson);
+        
+        Map<String, String> response = testObj.move(request);
+        assertThat(response.get("move")).isNotEqualTo("left");
+    }
 }

@@ -33,8 +33,8 @@ public class StrategyService {
     private StageTransitRule[] strategySelectTable = {
             
             new StageTransitRule(INIT, eagerFoodCheck, STRAVING, HEALTHY),
-            new StageTransitRule(STRAVING, findNearestFoodStrategy, FOUND_FOOD, NO_FOOD),
             new StageTransitRule(HEALTHY, lenghtCheck, STRONG, WEAK),
+            new StageTransitRule(STRAVING, findNearestFoodStrategy, FOUND_FOOD, NO_FOOD),
             new StageTransitRule(WEAK,stealOthersFoodStrategy, FOUND_FOOD, NO_FOOD),
             new StageTransitRule(STRONG, chaseTailStrategy, DECIDED, TRAPPED),
             new StageTransitRule(FOUND_FOOD, safeGuardStrategy, DECIDED, NO_FOOD),

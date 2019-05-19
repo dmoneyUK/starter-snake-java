@@ -68,6 +68,7 @@ public class DistanceBoardUtils {
     }
     
     public static long findAvailableSpaceNearby(GameBoard gameBoard, Vertex start) {
+        
         int[][] distanceBoard = calculateDistanceBoard(gameBoard.getBoard(), start);
         long count = Arrays.stream(distanceBoard)
                            .flatMapToInt(Arrays::stream)
@@ -88,6 +89,27 @@ public class DistanceBoardUtils {
         // If not grow in the next turn, current tail is safe.
         if (!me.getTail().equals(me.getBody().get(me.getLength() - 2))) {
             boardClone[me.getTail().getRow()][me.getTail().getColumn()] = 0;
+            Vertex head = me.getHead();
+            Vertex tail = me.getTail();
+            if (head.getRow() == tail.getRow()) {
+                me.getBody()
+                  .parallelStream()
+                  .filter(v -> v.getRow() == head.getRow())
+                  .filter(v -> head.getColumn() > tail.getColumn() && tail.getColumn() > v.getColumn()
+                          || head.getColumn() < tail.getColumn() && tail
+                          .getColumn() < v.getColumn())
+                  .forEach(v -> boardClone[v.getRow()][v.getColumn()] = 0);
+        
+            } else if (head.getColumn() == tail.getColumn()) {
+                me.getBody()
+                  .parallelStream()
+                  .filter(v -> v.getColumn() == head.getColumn())
+                  .filter(v -> head.getRow() > tail.getRow() && tail.getRow() > v.getRow()
+                          || head.getRow() < tail.getRow() && tail
+                          .getRow() < v.getRow())
+                  .forEach(v -> boardClone[v.getRow()][v.getColumn()] = 0);
+            }
+    
         }
         if (me.getHealth() > 20) {
             GameBoardUtils.findDangerous(gameBoard)

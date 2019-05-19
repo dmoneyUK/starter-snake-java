@@ -91,13 +91,13 @@ public class GameBoardUtils {
     }
     
     public static Optional<Vertex> findSafeVertexWithinTargetRound(int[][] distanceBoard, Vertex start) {
-        if(distanceBoard[start.getRow()][start.getColumn()]!=Integer.MAX_VALUE){
+        if (distanceBoard[start.getRow()][start.getColumn()] != Integer.MAX_VALUE) {
             return Optional.of(start);
         }
         for (int[] dir : dirs) {
             int y = start.getRow() + dir[0];
             int x = start.getColumn() + dir[1];
-            if (distanceBoard[y][x] != Integer.MAX_VALUE) {
+            if (distanceBoard[y][x] != Integer.MAX_VALUE && distanceBoard[y][x] != 0) {
                 return Optional.of(Vertex.builder().row(y).column(x).build());
             }
         }
