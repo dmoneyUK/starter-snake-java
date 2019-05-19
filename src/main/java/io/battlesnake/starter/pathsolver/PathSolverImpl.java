@@ -7,6 +7,7 @@ import io.battlesnake.starter.service.strategy.StrategyService;
 import java.util.Map;
 
 import static io.battlesnake.starter.utils.DistanceBoardUtils.getAllSnakesDistanceBoards;
+import static io.battlesnake.starter.utils.DistanceBoardUtils.riskyMe;
 import static io.battlesnake.starter.utils.MovementUtils.backTrack;
 
 public class PathSolverImpl implements PathSolver {
@@ -44,11 +45,14 @@ public class PathSolverImpl implements PathSolver {
         // Calculate the distance board for all snakes
         Map<Vertex, int[][]> snakesDistanceMap = getAllSnakesDistanceBoards(gameBoard);
         int[][] myDistanceBoard = snakesDistanceMap.get(currentPos);
+        int[][] myRiskDistanceBoard = snakesDistanceMap.get(riskyMe);
         
         StrategyService strategyService = new StrategyService();
         Vertex target = strategyService.makeDecision(gameBoard, snakesDistanceMap);
-        
-        return backTrack(myDistanceBoard, target);
+    
+        return myDistanceBoard[target.getRow()][target.getColumn()] == Integer.MAX_VALUE ? backTrack(myRiskDistanceBoard,
+                                                                                                     target) : backTrack(myDistanceBoard,
+                                                                                                                         target);
     }
     
 }

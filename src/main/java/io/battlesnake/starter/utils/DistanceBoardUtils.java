@@ -53,8 +53,8 @@ public class DistanceBoardUtils {
     
     public static Map<Vertex, int[][]> getAllSnakesDistanceBoards(GameBoard gameBoard) {
     
-        int[][] mySafeDistanceBoard = getMyDistanceBoard(gameBoard, true);
-        int[][] myRiskyDistanceBoard = getMyDistanceBoard(gameBoard, false);
+        int[][] mySafeDistanceBoard = getMyDistanceBoard(gameBoard, false);
+        int[][] myRiskyDistanceBoard = getMyDistanceBoard(gameBoard, true);
         
         Snake me = gameBoard.getMe();
         Map<Vertex, int[][]> allSnakesDistanceBoards = gameBoard.getSnakes()
