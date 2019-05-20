@@ -2,7 +2,7 @@ package io.battlesnake.starter.pathsolver;
 
 import io.battlesnake.starter.model.GameBoard;
 import io.battlesnake.starter.model.Vertex;
-import io.battlesnake.starter.service.strategy.StrategyService;
+import io.battlesnake.starter.service.StrategyService;
 
 import java.util.Map;
 import java.util.Optional;

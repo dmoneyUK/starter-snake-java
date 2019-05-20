@@ -12,7 +12,7 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 public class ShouldAvoidSelfTrap extends SnakeAppHandlerTest {
     
     @Test
-    void shouldAvoidSelfTrap() throws IOException {
+    void shouldAvoidSelfTrap() throws Exception {
         String reqJson = JsonFixtures.read("fixtures/shouldAvoidSelfTrap.json");
 
         JsonNode request = JSON_MAPPER.readTree(reqJson);
@@ -22,7 +22,7 @@ public class ShouldAvoidSelfTrap extends SnakeAppHandlerTest {
     }
     
     @Test
-    void shouldAvoidSelfTrap2() throws IOException {
+    void shouldAvoidSelfTrap2() throws Exception {
         String reqJson = JsonFixtures.read("fixtures/shouldAvoidSelfTrap2.json");
         
         JsonNode request = JSON_MAPPER.readTree(reqJson);
@@ -32,7 +32,7 @@ public class ShouldAvoidSelfTrap extends SnakeAppHandlerTest {
     }
     
     @Test
-    void shouldAvoidSelfTrap3() throws IOException {
+    void shouldAvoidSelfTrap3() throws Exception {
         String reqJson = JsonFixtures.read("fixtures/shouldAvoidSelfTrap3.json");
         
         JsonNode request = JSON_MAPPER.readTree(reqJson);

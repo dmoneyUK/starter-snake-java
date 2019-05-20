@@ -15,7 +15,7 @@ class shouldMoveToFarthest {
     private SnakeHandler testObj = new SnakeHandler();
     
     @Test
-    void shouldMoveUp() throws IOException {
+    void shouldMoveUp() throws Exception {
         String reqJson = JsonFixtures.read("fixtures/shouldMoveToFarthest.json");
         
         JsonNode request = JSON_MAPPER.readTree(reqJson);

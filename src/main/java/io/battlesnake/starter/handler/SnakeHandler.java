@@ -3,12 +3,10 @@ package io.battlesnake.starter.handler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.battlesnake.starter.SnakeApp;
 import io.battlesnake.starter.model.GameBoard;
-import io.battlesnake.starter.pathsolver.PathSolverImpl;
 import io.battlesnake.starter.pathsolver.PathSolver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.battlesnake.starter.pathsolver.PathSolverImpl;
+import lombok.extern.slf4j.Slf4j;
 import spark.Request;
 import spark.Response;
 
@@ -17,6 +15,7 @@ import java.util.Map;
 
 import static io.battlesnake.starter.utils.GameBoardUtils.initGameBoard;
 
+@Slf4j
 public class SnakeHandler {
     
     /**
@@ -24,10 +23,8 @@ public class SnakeHandler {
      */
     private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
     private static final Map<String, String> EMPTY = new HashMap<>();
-    private static final Logger LOG = LoggerFactory.getLogger(SnakeApp.class);
     private static final PathSolver pathSolver = new PathSolverImpl();
     
-
     /**
      * Generic processor that prints out the request and response from the methods.
      *
@@ -39,7 +36,7 @@ public class SnakeHandler {
         try {
             JsonNode parsedRequest = JSON_MAPPER.readTree(req.body());
             String uri = req.uri();
-            LOG.info("{} called with: {}", uri, req.body());
+            log.info("{} called with: {}", uri, req.body());
             Map<String, String> snakeResponse;
             if (uri.equals("/start")) {
                 snakeResponse = start(parsedRequest);
@@ -55,10 +52,10 @@ public class SnakeHandler {
             snakeResponse.put("color", "#736CCB");
             snakeResponse.put("headType","silly");
             snakeResponse.put("tailType", "hook");
-            LOG.info("Responding with: {}", JSON_MAPPER.writeValueAsString(snakeResponse));
+            log.info("Responding with: {}", JSON_MAPPER.writeValueAsString(snakeResponse));
             return snakeResponse;
         } catch (Exception e) {
-            LOG.warn("Something went wrong!", e);
+            log.warn("Something went wrong!", e);
             return null;
         }
     }
@@ -92,9 +89,9 @@ public class SnakeHandler {
      * @param moveRequest a map containing the JSON sent to this snake. See the spec for details of what this contains.
      * @return a response back to the engine containing snake movement values.
      */
-    public Map<String, String> move(JsonNode moveRequest) throws JsonProcessingException {
+    public Map<String, String> move(JsonNode moveRequest) throws Exception {
         GameBoard gameBoard = initGameBoard(moveRequest);
-    
+        
         String nextStep = pathSolver.findNextStep(gameBoard);
         
         Map<String, String> response = new HashMap<>();

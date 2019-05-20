@@ -12,7 +12,7 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 public class ShouldAvoidSelfCollision extends SnakeAppHandlerTest{
     
     @Test
-    void shouldAvoidSelfCollisionAndMoveDown() throws IOException {
+    void shouldAvoidSelfCollisionAndMoveDown() throws Exception {
         String reqJson = JsonFixtures.read("fixtures/shouldAvoidSelfCollision.json");
         
         JsonNode request = JSON_MAPPER.readTree(reqJson);
@@ -22,7 +22,7 @@ public class ShouldAvoidSelfCollision extends SnakeAppHandlerTest{
     }
     
     @Test
-    void shouldAvoidSelfCollision2AndMoveRight() throws IOException {
+    void shouldAvoidSelfCollision2AndMoveRight() throws Exception {
         String reqJson = JsonFixtures.read("fixtures/shouldAvoidSelfCollision2.json");
         
         JsonNode request = JSON_MAPPER.readTree(reqJson);
@@ -43,7 +43,7 @@ public class ShouldAvoidSelfCollision extends SnakeAppHandlerTest{
     //}
     
     @Test
-    void shouldAvoidSelfCollision4AndMoveRight() throws IOException {
+    void shouldAvoidSelfCollision4AndMoveRight() throws Exception {
         String reqJson = JsonFixtures.read("fixtures/shouldAvoidSelfCollision4.json");
         
         JsonNode request = JSON_MAPPER.readTree(reqJson);
@@ -63,7 +63,7 @@ public class ShouldAvoidSelfCollision extends SnakeAppHandlerTest{
     //}
     
     @Test
-    void shouldAvoidSelfCollision6AndMoveRight() throws IOException {
+    void shouldAvoidSelfCollision6AndMoveRight() throws Exception {
         String reqJson = JsonFixtures.read("fixtures/shouldAvoidSelfCollision6.json");
         
         JsonNode request = JSON_MAPPER.readTree(reqJson);
@@ -73,7 +73,7 @@ public class ShouldAvoidSelfCollision extends SnakeAppHandlerTest{
     }
 
     @Test
-    void shouldAvoidSelfCollision7() throws IOException {
+    void shouldAvoidSelfCollision7() throws Exception {
         String reqJson = JsonFixtures.read("fixtures/shouldAvoidSelfCollision7.json");
 
         JsonNode request = JSON_MAPPER.readTree(reqJson);
@@ -83,7 +83,7 @@ public class ShouldAvoidSelfCollision extends SnakeAppHandlerTest{
     }
     
     @Test
-    void shouldAvoidSelfCollision8() throws IOException {
+    void shouldAvoidSelfCollision8() throws Exception {
         String reqJson = JsonFixtures.read("fixtures/shouldAvoidSelfCollision8.json");
         
         JsonNode request = JSON_MAPPER.readTree(reqJson);

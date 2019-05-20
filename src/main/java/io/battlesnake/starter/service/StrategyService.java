@@ -1,7 +1,10 @@
-package io.battlesnake.starter.service.strategy;
+package io.battlesnake.starter.service;
 
 import io.battlesnake.starter.model.GameBoard;
 import io.battlesnake.starter.model.Vertex;
+import io.battlesnake.starter.service.strategy.GameState;
+import io.battlesnake.starter.service.strategy.StrategyResult;
+import io.battlesnake.starter.service.strategy.StrategyTransitStage;
 import io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +21,7 @@ import static io.battlesnake.starter.service.strategy.StrategyFn.goFurthestStrat
 import static io.battlesnake.starter.service.strategy.StrategyFn.lenghtCheck;
 import static io.battlesnake.starter.service.strategy.StrategyFn.safeGuardStrategy;
 import static io.battlesnake.starter.service.strategy.StrategyFn.stealOthersFoodStrategy;
+import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage.CANNOT_REACH_TAIL;
 import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage.DECIDED;
 import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage.FOUND_FOOD;
 import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage.FOUND_FURTHEST;
@@ -27,7 +31,6 @@ import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage
 import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage.NO_FOOD;
 import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage.STRAVING;
 import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage.STRONG;
-import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage.CANNOT_REACH_TAIL;
 import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage.WEAK;
 
 @Slf4j

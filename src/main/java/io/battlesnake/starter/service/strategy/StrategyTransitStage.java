@@ -10,8 +10,8 @@ import java.util.Optional;
 @Builder
 @Getter
 @EqualsAndHashCode
-class StrategyTransitStage {
-    enum Stage {
+public class StrategyTransitStage {
+    public enum Stage {
         INIT,
         STRAVING,
         HEALTHY,
