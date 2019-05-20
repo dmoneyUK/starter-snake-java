@@ -5,14 +5,19 @@ import io.battlesnake.starter.model.Vertex;
 import io.battlesnake.starter.service.strategy.StrategyService;
 
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
 
-import static io.battlesnake.starter.utils.DistanceBoardUtils.getAllSnakesDistanceBoards;
-import static io.battlesnake.starter.utils.DistanceBoardUtils.riskyMe;
+import static io.battlesnake.starter.utils.DistanceBoardUtils.getRiskyAllSnakesDistanceBoards;
+import static io.battlesnake.starter.utils.DistanceBoardUtils.getSafeAllSnakesDistanceBoards;
 import static io.battlesnake.starter.utils.MovementUtils.backTrack;
 
 public class PathSolverImpl implements PathSolver {
     
     private static int[][] dirs = {{1, 0}, {-1, 0}, {0, -1}, {0, 1}};
+    
+    private StrategyService strategyService = new StrategyService();
     
     @Override
     public String findNextStep(GameBoard gameBoard) {
@@ -40,19 +45,23 @@ public class PathSolverImpl implements PathSolver {
     
     // Find the location (a target) to move to.
     private Vertex findNextPos(GameBoard gameBoard, Vertex currentPos) {
-        Vertex nextPos = null;
-        
-        // Calculate the distance board for all snakes
-        Map<Vertex, int[][]> snakesDistanceMap = getAllSnakesDistanceBoards(gameBoard);
-        int[][] myDistanceBoard = snakesDistanceMap.get(currentPos);
-        int[][] myRiskDistanceBoard = snakesDistanceMap.get(riskyMe);
-        
-        StrategyService strategyService = new StrategyService();
-        Vertex target = strategyService.makeDecision(gameBoard, snakesDistanceMap);
     
-        return myDistanceBoard[target.getRow()][target.getColumn()] == Integer.MAX_VALUE ? backTrack(myRiskDistanceBoard,
-                                                                                                     target) : backTrack(myDistanceBoard,
-                                                                                                                         target);
+        // Calculate the distance board for all snakes
+        CompletableFuture<Vertex> safeFuture = CompletableFuture.supplyAsync(() -> {
+            Map<Vertex, int[][]> safeSnakesDistanceBoards = getSafeAllSnakesDistanceBoards(gameBoard);
+            int[][] myDistanceBoard = safeSnakesDistanceBoards.get(currentPos);
+            Vertex target = strategyService.makeDecision(gameBoard, safeSnakesDistanceBoards);
+            return backTrack(myDistanceBoard, target);
+        }, Executors.newSingleThreadExecutor());
+    
+        CompletableFuture<Vertex> riskyFuture = CompletableFuture.supplyAsync(() -> {
+            Map<Vertex, int[][]> riskySnakesDistanceBoards = getRiskyAllSnakesDistanceBoards(gameBoard);
+            int[][] myRiskDistanceBoard = riskySnakesDistanceBoards.get(currentPos);
+            Vertex target = strategyService.makeDecision(gameBoard, riskySnakesDistanceBoards);
+            return backTrack(myRiskDistanceBoard, target);
+        }, Executors.newSingleThreadExecutor());
+    
+        return Optional.ofNullable(safeFuture.join()).orElse(riskyFuture.join());
     }
     
 }

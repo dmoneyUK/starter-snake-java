@@ -22,7 +22,6 @@ class StrategyTransitStage {
         DECIDED,
         CANNOT_REACH_TAIL,
         FOUND_FURTHEST,
-        NO_SAFE_EXIT,
         NO_EXIT;
     }
     

@@ -97,6 +97,42 @@ public class GameBoardUtils {
         return Optional.empty();
     }
     
+    public static int[][] getMyGameBoard(GameBoard gameBoard) {
+        
+        Snake me = gameBoard.getMe();
+        int[][] boardClone = GameBoardUtils.getBoardClone(gameBoard);
+        
+        //PrintingUtils.printBoard(boardClone);
+        
+        // If not grow in the next turn, current tail is safe.
+        if (!me.getTail().equals(me.getBody().get(me.getLength() - 2))) {
+            boardClone[me.getTail().getRow()][me.getTail().getColumn()] = 0;
+            Vertex head = me.getHead();
+            Vertex tail = me.getTail();
+            if (head.getRow() == tail.getRow()) {
+                me.getBody()
+                  .parallelStream()
+                  .filter(v -> v.getRow() == head.getRow())
+                  .filter(v -> head.getColumn() > tail.getColumn() && tail.getColumn() > v.getColumn()
+                          || head.getColumn() < tail.getColumn() && tail
+                          .getColumn() < v.getColumn())
+                  .forEach(v -> boardClone[v.getRow()][v.getColumn()] = 0);
+                
+            } else if (head.getColumn() == tail.getColumn()) {
+                me.getBody()
+                  .parallelStream()
+                  .filter(v -> v.getColumn() == head.getColumn())
+                  .filter(v -> head.getRow() > tail.getRow() && tail.getRow() > v.getRow()
+                          || head.getRow() < tail.getRow() && tail
+                          .getRow() < v.getRow())
+                  .forEach(v -> boardClone[v.getRow()][v.getColumn()] = 0);
+            }
+            
+        }
+        //PrintingUtils.printBoard(boardClone);
+        return boardClone;
+    }
+    
     private static GameBoard markBorders(GameBoard gameBoard) {
         int[][] board = gameBoard.getBoard();
         Arrays.fill(board[0], 1);
