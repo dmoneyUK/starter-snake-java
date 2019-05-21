@@ -29,7 +29,7 @@ import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage
 import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage.INIT;
 import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage.NO_EXIT;
 import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage.NO_FOOD;
-import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage.STRAVING;
+import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage.STARVING;
 import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage.STRONG;
 import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage.WEAK;
 
@@ -38,9 +38,9 @@ public class StrategyService {
     
     private StageTransitRule[] strategySelectTable = {
             
-            new StageTransitRule(INIT, eagerFoodCheck, STRAVING, HEALTHY),
+            new StageTransitRule(INIT, eagerFoodCheck, STARVING, HEALTHY),
             new StageTransitRule(HEALTHY, lenghtCheck, STRONG, WEAK),
-            new StageTransitRule(STRAVING, findNearestFoodStrategy, FOUND_FOOD, NO_FOOD),
+            new StageTransitRule(STARVING, findNearestFoodStrategy, FOUND_FOOD, NO_FOOD),
             new StageTransitRule(WEAK,stealOthersFoodStrategy, FOUND_FOOD, NO_FOOD),
             new StageTransitRule(STRONG, chaseTailStrategy, DECIDED, CANNOT_REACH_TAIL),
             new StageTransitRule(FOUND_FOOD, safeGuardStrategy, DECIDED, NO_FOOD),

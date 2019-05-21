@@ -1,17 +1,19 @@
 package io.battlesnake.starter.handler;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.battlesnake.starter.model.GameBoard;
 import io.battlesnake.starter.pathsolver.PathSolver;
 import io.battlesnake.starter.pathsolver.PathSolverImpl;
+import io.battlesnake.starter.service.StrategyService;
 import lombok.extern.slf4j.Slf4j;
 import spark.Request;
 import spark.Response;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import static io.battlesnake.starter.utils.GameBoardUtils.initGameBoard;
 
@@ -23,7 +25,8 @@ public class SnakeHandler {
      */
     private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
     private static final Map<String, String> EMPTY = new HashMap<>();
-    private static final PathSolver pathSolver = new PathSolverImpl();
+    private final Executor executor = Executors.newFixedThreadPool(5);
+    private final PathSolver pathSolver = new PathSolverImpl(new StrategyService(), executor);
     
     /**
      * Generic processor that prints out the request and response from the methods.

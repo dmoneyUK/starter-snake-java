@@ -10,16 +10,14 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
+import static io.battlesnake.starter.utils.FutureHelper.asyncExecute;
 import static io.battlesnake.starter.utils.FutureHelper.getFromFuture;
 import static java.util.stream.Collectors.toList;
 
@@ -31,12 +29,12 @@ public class GameBoardUtils {
     private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
     private static int[][] dirs = {{1, 0}, {-1, 0}, {0, -1}, {0, 1}};
     
-    private static Function<JsonNode, CompletableFuture<GameBoard>> createGameBoardFn = (request) -> {
+    private static Function<JsonNode, GameBoard> createGameBoardFn = (request) -> {
         JsonNode boardNode = request.get("board");
         
-        CompletableFuture<List<Vertex>> findFoodFuture = asyncFindAllFood(request);
-        CompletableFuture<List<Snake>> findSnakesFuture = asyncFindSnakes(request);
-        CompletableFuture<Snake> findMeFuture = asyncFindMe(request);
+        CompletableFuture<List<Vertex>> findFoodFuture = asyncExecute(() -> findAllFood(request));
+        CompletableFuture<List<Snake>> findSnakesFuture = asyncExecute(() -> findSnakes(request));
+        CompletableFuture<Snake> findMeFuture = asyncExecute(() -> findMe(request));
         
         return CompletableFuture.allOf(findFoodFuture, findSnakesFuture, findMeFuture)
                                 .thenApply(v -> GameBoard.builder()
@@ -45,30 +43,29 @@ public class GameBoardUtils {
                                                          .foodList(getFromFuture(findFoodFuture))
                                                          .snakes(getFromFuture(findSnakesFuture))
                                                          .me(getFromFuture(findMeFuture))
-                                                         .build());
+                                                         .build()).join();
     };
     
-    public static GameBoard initGameBoard(JsonNode request) throws Exception {
+    public static GameBoard initGameBoard(JsonNode request) {
+        GameBoard gameBoard = createGameBoardFn.apply(request);
         
-        // try async for each task
-        return createGameBoardFn
-                .apply(request)
-                .thenApplyAsync(GameBoardUtils::markBorders)
-                .thenApplyAsync(GameBoardUtils::markSnakes)
-                .thenApplyAsync(GameBoardUtils::markFood)
-                .get();
+        CompletableFuture<GameBoard> markBoarderFuture = asyncExecute(() -> markBorders(gameBoard));
+        CompletableFuture<GameBoard> markSnakesFuture = asyncExecute(() -> markSnakes(gameBoard));
+        CompletableFuture<GameBoard> markFoodFuture = asyncExecute(() -> markFood(gameBoard));
+        
+        CompletableFuture.allOf(markBoarderFuture, markFoodFuture, markSnakesFuture).join();
+        
+        return gameBoard;
+       
     }
     
-    public static CompletableFuture<Snake> asyncFindMe(JsonNode request) {
-        return CompletableFuture.supplyAsync(() -> {
+    public static Snake findMe(JsonNode request) {
             try {
                 return JSON_MAPPER.treeToValue(request.get("you"), Snake.class);
             } catch (JsonProcessingException e) {
-                log.error("Error happened when asyncFindMe(). Exception: {}", e);
+                log.error("Error happened when findMe(). Exception: {}", e);
             }
             return null;
-        });
-        
     }
     
     public static List<Vertex> findDangerous(GameBoard gameBoard) {
@@ -124,22 +121,20 @@ public class GameBoardUtils {
             boardClone[me.getTail().getRow()][me.getTail().getColumn()] = 0;
             Vertex head = me.getHead();
             Vertex tail = me.getTail();
-            if (head.getRow() == tail.getRow()) {
+            if (head.getRow() == tail.getRow()) { // when head and tail are on same row, the body behind the tail are safe.
                 me.getBody()
                   .parallelStream()
                   .filter(v -> v.getRow() == head.getRow())
                   .filter(v -> head.getColumn() > tail.getColumn() && tail.getColumn() > v.getColumn()
-                          || head.getColumn() < tail.getColumn() && tail
-                          .getColumn() < v.getColumn())
+                          || head.getColumn() < tail.getColumn() && tail.getColumn() < v.getColumn())
                   .forEach(v -> boardClone[v.getRow()][v.getColumn()] = 0);
                 
-            } else if (head.getColumn() == tail.getColumn()) {
+            } else if (head.getColumn() == tail.getColumn()) { // when head and tail are on same column, the body behind the tail are safe.
                 me.getBody()
                   .parallelStream()
                   .filter(v -> v.getColumn() == head.getColumn())
                   .filter(v -> head.getRow() > tail.getRow() && tail.getRow() > v.getRow()
-                          || head.getRow() < tail.getRow() && tail
-                          .getRow() < v.getRow())
+                          || head.getRow() < tail.getRow() && tail.getRow() < v.getRow())
                   .forEach(v -> boardClone[v.getRow()][v.getColumn()] = 0);
             }
             
@@ -189,8 +184,8 @@ public class GameBoardUtils {
         return vertex;
     }
     
-    private static CompletableFuture<List<Vertex>> asyncFindAllFood(JsonNode request) {
-        return CompletableFuture.supplyAsync(() -> {
+    private static List<Vertex> findAllFood(JsonNode request) {
+
             List<Vertex> foodList = new ArrayList<>();
             Iterator<JsonNode> foodIt = request.findValue("food").elements();
             
@@ -205,11 +200,9 @@ public class GameBoardUtils {
                 foodList.add(vertex);
             }
             return foodList;
-        });
     }
     
-    private static CompletableFuture<List<Snake>> asyncFindSnakes(JsonNode request) {
-        return CompletableFuture.supplyAsync(() -> {
+    private static List<Snake> findSnakes(JsonNode request) {
             List<Snake> snakes = new ArrayList<>();
             Iterator<JsonNode> snakeIt = request.findValue("snakes").elements();
             
@@ -221,7 +214,6 @@ public class GameBoardUtils {
                 }
             }
             return snakes;
-        });
     }
     
     private static int getHeadToHeadDistance(Vertex me, Vertex head) {
@@ -239,48 +231,48 @@ public class GameBoardUtils {
                         .collect(toList());
     }
     
-    private static List<Vertex> findSelfCollisionRiskFn(GameBoard gameBoard) {
-        Snake me = gameBoard.getMe();
-        Vertex head = me.getHead();
-        Vertex tail = me.getTail();
-        
-        Set<Vertex> risks = new HashSet<>();
-        
-        int headRow = head.getRow();
-        int headColumn = head.getColumn();
-        int tailRow = tail.getRow();
-        int tailColumn = tail.getColumn();
-        
-        List<Vertex> inHeadRow = me.getBody().stream()
-                                   .filter(node -> node.getRow() == headRow)
-                                   .filter(node -> node.getRow() != tailRow && node.getColumn() != tailColumn)
-                                   .sorted(Comparator.comparingInt(v -> v.getColumn()))
-                                   .collect(toList());
-        
-        if (inHeadRow.size() > 1) {
-            int min = inHeadRow.get(0).getColumn();
-            int max = inHeadRow.get(inHeadRow.size() - 1).getColumn();
-            for (int i = min + 1; i < max; i++) {
-                risks.add(new Vertex(headRow, i));
-            }
-        }
-        
-        List<Vertex> inHeadColumn = me.getBody().stream()
-                                      .filter(node -> node.getColumn() == headColumn)
-                                      .filter(node -> node.getRow() != tailRow && node.getColumn() != tailColumn)
-                                      .sorted(Comparator.comparingInt(v -> v.getRow()))
-                                      .collect(toList());
-        
-        if (inHeadColumn.size() > 1) {
-            int min = inHeadColumn.get(0).getRow();
-            int max = inHeadColumn.get(inHeadColumn.size() - 1).getRow();
-            for (int i = min + 1; i < max; i++) {
-                risks.add(new Vertex(i, headColumn));
-            }
-        }
-        
-        return risks.stream().collect(toList());
-        
-    }
+    //private static List<Vertex> findSelfCollisionRiskFn(GameBoard gameBoard) {
+    //    Snake me = gameBoard.getMe();
+    //    Vertex head = me.getHead();
+    //    Vertex tail = me.getTail();
+    //
+    //    Set<Vertex> risks = new HashSet<>();
+    //
+    //    int headRow = head.getRow();
+    //    int headColumn = head.getColumn();
+    //    int tailRow = tail.getRow();
+    //    int tailColumn = tail.getColumn();
+    //
+    //    List<Vertex> inHeadRow = me.getBody().stream()
+    //                               .filter(node -> node.getRow() == headRow)
+    //                               .filter(node -> node.getRow() != tailRow && node.getColumn() != tailColumn)
+    //                               .sorted(Comparator.comparingInt(v -> v.getColumn()))
+    //                               .collect(toList());
+    //
+    //    if (inHeadRow.size() > 1) {
+    //        int min = inHeadRow.get(0).getColumn();
+    //        int max = inHeadRow.get(inHeadRow.size() - 1).getColumn();
+    //        for (int i = min + 1; i < max; i++) {
+    //            risks.add(new Vertex(headRow, i));
+    //        }
+    //    }
+    //
+    //    List<Vertex> inHeadColumn = me.getBody().stream()
+    //                                  .filter(node -> node.getColumn() == headColumn)
+    //                                  .filter(node -> node.getRow() != tailRow && node.getColumn() != tailColumn)
+    //                                  .sorted(Comparator.comparingInt(v -> v.getRow()))
+    //                                  .collect(toList());
+    //
+    //    if (inHeadColumn.size() > 1) {
+    //        int min = inHeadColumn.get(0).getRow();
+    //        int max = inHeadColumn.get(inHeadColumn.size() - 1).getRow();
+    //        for (int i = min + 1; i < max; i++) {
+    //            risks.add(new Vertex(i, headColumn));
+    //        }
+    //    }
+    //
+    //    return risks.stream().collect(toList());
+    //
+    //}
     
 }

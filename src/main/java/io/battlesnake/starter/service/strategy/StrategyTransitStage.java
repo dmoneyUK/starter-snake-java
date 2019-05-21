@@ -13,7 +13,7 @@ import java.util.Optional;
 public class StrategyTransitStage {
     public enum Stage {
         INIT,
-        STRAVING,
+        STARVING,
         HEALTHY,
         STRONG,
         WEAK,

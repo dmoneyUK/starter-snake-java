@@ -3,11 +3,12 @@ package io.battlesnake.starter.pathsolver;
 import io.battlesnake.starter.model.GameBoard;
 import io.battlesnake.starter.model.Vertex;
 import io.battlesnake.starter.service.StrategyService;
+import io.battlesnake.starter.utils.FutureHelper;
 
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
+import java.util.concurrent.Executor;
 
 import static io.battlesnake.starter.utils.DistanceBoardUtils.getRiskyAllSnakesDistanceBoards;
 import static io.battlesnake.starter.utils.DistanceBoardUtils.getSafeAllSnakesDistanceBoards;
@@ -17,7 +18,13 @@ public class PathSolverImpl implements PathSolver {
     
     private static int[][] dirs = {{1, 0}, {-1, 0}, {0, -1}, {0, 1}};
     
-    private StrategyService strategyService = new StrategyService();
+    private final StrategyService strategyService;
+    private final Executor executor;
+    
+    public PathSolverImpl(StrategyService strategyService, Executor executor) {
+        this.strategyService = strategyService;
+        this.executor = executor;
+    }
     
     @Override
     public String findNextStep(GameBoard gameBoard) {
@@ -47,19 +54,19 @@ public class PathSolverImpl implements PathSolver {
     private Vertex findNextPos(GameBoard gameBoard, Vertex currentPos) {
     
         // Calculate the distance board for all snakes
-        CompletableFuture<Vertex> safeFuture = CompletableFuture.supplyAsync(() -> {
+        CompletableFuture<Vertex> safeFuture = FutureHelper.asyncExecute(() -> {
             Map<Vertex, int[][]> safeSnakesDistanceBoards = getSafeAllSnakesDistanceBoards(gameBoard);
             int[][] myDistanceBoard = safeSnakesDistanceBoards.get(currentPos);
             Vertex target = strategyService.makeDecision(gameBoard, safeSnakesDistanceBoards);
             return backTrack(myDistanceBoard, target);
-        }, Executors.newSingleThreadExecutor());
+        });
     
-        CompletableFuture<Vertex> riskyFuture = CompletableFuture.supplyAsync(() -> {
+        CompletableFuture<Vertex> riskyFuture = FutureHelper.asyncExecute(() -> {
             Map<Vertex, int[][]> riskySnakesDistanceBoards = getRiskyAllSnakesDistanceBoards(gameBoard);
             int[][] myRiskDistanceBoard = riskySnakesDistanceBoards.get(currentPos);
             Vertex target = strategyService.makeDecision(gameBoard, riskySnakesDistanceBoards);
             return backTrack(myRiskDistanceBoard, target);
-        }, Executors.newSingleThreadExecutor());
+        });
     
         return Optional.ofNullable(safeFuture.join()).orElse(riskyFuture.join());
     }
