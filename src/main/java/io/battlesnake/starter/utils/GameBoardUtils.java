@@ -14,8 +14,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
-import java.util.stream.Stream;
 
 import static io.battlesnake.starter.utils.FutureHelper.asyncExecute;
 import static io.battlesnake.starter.utils.FutureHelper.getFromFuture;
@@ -29,12 +27,12 @@ public class GameBoardUtils {
     private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
     private static int[][] dirs = {{1, 0}, {-1, 0}, {0, -1}, {0, 1}};
     
-    private static Function<JsonNode, GameBoard> createGameBoardFn = (request) -> {
+    private static GameBoard createGameBoard(JsonNode request) {
         JsonNode boardNode = request.get("board");
         
-        CompletableFuture<List<Vertex>> findFoodFuture = asyncExecute(() -> findAllFood(request));
-        CompletableFuture<List<Snake>> findSnakesFuture = asyncExecute(() -> findSnakes(request));
-        CompletableFuture<Snake> findMeFuture = asyncExecute(() -> findMe(request));
+        CompletableFuture<List<Vertex>> findFoodFuture = asyncFindAllFood(request);
+        CompletableFuture<List<Snake>> findSnakesFuture = asyncFindSnakes(request);
+        CompletableFuture<Snake> findMeFuture = asyncFindMe(request);
         
         return CompletableFuture.allOf(findFoodFuture, findSnakesFuture, findMeFuture)
                                 .thenApply(v -> GameBoard.builder()
@@ -47,25 +45,21 @@ public class GameBoardUtils {
     };
     
     public static GameBoard initGameBoard(JsonNode request) {
-        GameBoard gameBoard = createGameBoardFn.apply(request);
-        
-        CompletableFuture<GameBoard> markBoarderFuture = asyncExecute(() -> markBorders(gameBoard));
-        CompletableFuture<GameBoard> markSnakesFuture = asyncExecute(() -> markSnakes(gameBoard));
-        CompletableFuture<GameBoard> markFoodFuture = asyncExecute(() -> markFood(gameBoard));
-        
-        CompletableFuture.allOf(markBoarderFuture, markFoodFuture, markSnakesFuture).join();
-        
+        GameBoard gameBoard = createGameBoard(request);
+        CompletableFuture.allOf(asyncMarkBorders(gameBoard), asyncMarkSnakes(gameBoard), asyncMarkFood(gameBoard)).join();
         return gameBoard;
-       
+    
     }
     
-    public static Snake findMe(JsonNode request) {
+    public static CompletableFuture<Snake> asyncFindMe(JsonNode request) {
+        return asyncExecute(() -> {
             try {
                 return JSON_MAPPER.treeToValue(request.get("you"), Snake.class);
             } catch (JsonProcessingException e) {
-                log.error("Error happened when findMe(). Exception: {}", e);
+                log.error("Error happened when asyncFindMe(). Exception: {}", e);
             }
             return null;
+        });
     }
     
     public static List<Vertex> findDangerous(GameBoard gameBoard) {
@@ -74,8 +68,9 @@ public class GameBoardUtils {
     }
     
     public static int[][] getBoardClone(GameBoard gameBoard) {
-        
+    
         return Arrays.stream(gameBoard.getBoard())
+                     .parallel()
                      .map(r -> r.clone())
                      .toArray(int[][]::new);
     }
@@ -143,40 +138,47 @@ public class GameBoardUtils {
         return boardClone;
     }
     
-    private static GameBoard markBorders(GameBoard gameBoard) {
-        int[][] board = gameBoard.getBoard();
-        Arrays.fill(board[0], 1);
-        Arrays.fill(board[board.length - 1], 1);
-        for (int i = 1; i < board[0].length - 1; i++) {
-            Arrays.fill(board[i], 0);
-            board[i][0] = 1;
-            board[i][board[0].length - 1] = 1;
-        }
-        return gameBoard;
+    private static CompletableFuture<GameBoard> asyncMarkBorders(GameBoard gameBoard) {
+        return asyncExecute(() -> {
+            int[][] board = gameBoard.getBoard();
+            Arrays.fill(board[0], 1);
+            Arrays.fill(board[board.length - 1], 1);
+            for (int i = 1; i < board[0].length - 1; i++) {
+                Arrays.fill(board[i], 0);
+                board[i][0] = 1;
+                board[i][board[0].length - 1] = 1;
+            }
+            return gameBoard;
+        });
+        
     }
     
-    private static GameBoard markSnakes(GameBoard gameBoard) {
-        
-        gameBoard.getSnakes()
-                 .parallelStream()
-                 .forEach(snake -> markSnake(gameBoard, snake));
-        return gameBoard;
+    private static CompletableFuture<GameBoard> asyncMarkSnakes(GameBoard gameBoard) {
+        return asyncExecute(() -> {
+            gameBoard.getSnakes()
+                     .parallelStream()
+                     .forEach(snake -> markSnake(gameBoard, snake));
+            return gameBoard;
+        });
     }
     
     private static Snake markSnake(GameBoard gameBoard, Snake snake) {
+    
         snake.getBody()
              .parallelStream()
              .forEach(vertex -> markOccupied(gameBoard.getBoard(), vertex, BLOCKED));
         return snake;
     }
     
-    private static GameBoard markFood(GameBoard gameBoard) {
-        
-        gameBoard.getFoodList()
-                 .parallelStream()
-                 .filter(food -> gameBoard.getBoard()[food.getRow()][food.getColumn()] != 1)
-                 .forEach(food -> markOccupied(gameBoard.getBoard(), food, FOOD));
-        return gameBoard;
+    private static CompletableFuture<GameBoard> asyncMarkFood(GameBoard gameBoard) {
+        return asyncExecute(() -> {
+            gameBoard.getFoodList()
+                     .parallelStream()
+                     .filter(food -> gameBoard.getBoard()[food.getRow()][food.getColumn()] != 1)
+                     .forEach(food -> markOccupied(gameBoard.getBoard(), food, FOOD));
+            return gameBoard;
+        });
+       
     }
     
     private static Vertex markOccupied(int[][] board, Vertex vertex, int reason) {
@@ -184,8 +186,8 @@ public class GameBoardUtils {
         return vertex;
     }
     
-    private static List<Vertex> findAllFood(JsonNode request) {
-
+    private static CompletableFuture<List<Vertex>> asyncFindAllFood(JsonNode request) {
+        return asyncExecute(() -> {
             List<Vertex> foodList = new ArrayList<>();
             Iterator<JsonNode> foodIt = request.findValue("food").elements();
             
@@ -200,9 +202,11 @@ public class GameBoardUtils {
                 foodList.add(vertex);
             }
             return foodList;
+        });
     }
     
-    private static List<Snake> findSnakes(JsonNode request) {
+    private static CompletableFuture<List<Snake>> asyncFindSnakes(JsonNode request) {
+        return asyncExecute(() -> {
             List<Snake> snakes = new ArrayList<>();
             Iterator<JsonNode> snakeIt = request.findValue("snakes").elements();
             
@@ -214,6 +218,7 @@ public class GameBoardUtils {
                 }
             }
             return snakes;
+        });
     }
     
     private static int getHeadToHeadDistance(Vertex me, Vertex head) {
