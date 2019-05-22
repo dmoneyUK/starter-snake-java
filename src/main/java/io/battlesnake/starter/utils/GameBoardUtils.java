@@ -163,10 +163,15 @@ public class GameBoardUtils {
     }
     
     private static Snake markSnake(GameBoard gameBoard, Snake snake) {
+        List<Vertex> body = snake.getBody();
+        Vertex tail = snake.getTail();
+        int length = snake.getLength();
+        if (!snake.getMovementRange().contains(tail) && body.indexOf(tail) == length - 1) {
+            body = body.subList(0, length - 2);
+        }
+        body.parallelStream()
+            .forEach(vertex -> markOccupied(gameBoard.getBoard(), vertex, BLOCKED));
     
-        snake.getBody()
-             .parallelStream()
-             .forEach(vertex -> markOccupied(gameBoard.getBoard(), vertex, BLOCKED));
         return snake;
     }
     
@@ -228,7 +233,7 @@ public class GameBoardUtils {
     private static List<Vertex> findHeadToHeadRiskFn(GameBoard gameBoard) {
         Snake me = gameBoard.getMe();
         return gameBoard.getSnakes()
-                        .parallelStream()
+                        .stream()
                         .filter(snake -> getHeadToHeadDistance(me.getHead(), snake.getHead()) == 2)
                         .filter(snake -> !snake.isShortThan(me))
                         .map(Snake::getMovementRange)
@@ -236,7 +241,7 @@ public class GameBoardUtils {
                         .collect(toList());
     }
     
-    //private static List<Vertex> findSelfCollisionRiskFn(GameBoard gameBoard) {
+    //private static List<Vertex> findSelfCollisionRisk(GameBoard gameBoard) {
     //    Snake me = gameBoard.getMe();
     //    Vertex head = me.getHead();
     //    Vertex tail = me.getTail();

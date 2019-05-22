@@ -30,4 +30,5 @@ class shouldAvoidHeadToHead extends SnakeAppHandlerTest {
         Map<String, String> response = testObj.move(request);
         assertThat(response.get("move")).isNotEqualTo("right");
     }
+    
 }
