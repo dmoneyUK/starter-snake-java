@@ -165,9 +165,9 @@ public class GameBoardUtils {
     private static Snake markSnake(GameBoard gameBoard, Snake snake) {
         List<Vertex> body = snake.getBody();
         Vertex tail = snake.getTail();
-        int length = snake.getLength();
-        if (!snake.getMovementRange().contains(tail) && body.indexOf(tail) == length - 1) {
-            body = body.subList(0, length - 2);
+        int lastIndex = snake.getLength()-1;
+        if (!snake.getMovementRange().contains(tail) && body.indexOf(tail) == lastIndex) {
+            body = body.subList(0, lastIndex);
         }
         body.parallelStream()
             .forEach(vertex -> markOccupied(gameBoard.getBoard(), vertex, BLOCKED));
