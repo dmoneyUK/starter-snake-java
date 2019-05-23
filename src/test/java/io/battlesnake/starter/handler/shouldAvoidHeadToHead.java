@@ -31,4 +31,14 @@ class shouldAvoidHeadToHead extends SnakeAppHandlerTest {
         assertThat(response.get("move")).isNotEqualTo("right");
     }
     
+    @Test
+    void shouldAvoidHeadToHead2() throws Exception {
+        String reqJson = JsonFixtures.read("fixtures/shouldAvoidHeadToHead2.json");
+        
+        JsonNode request = JSON_MAPPER.readTree(reqJson);
+        
+        Map<String, String> response = testObj.move(request);
+        assertThat(response.get("move")).isEqualTo("right");
+    }
+ 
 }

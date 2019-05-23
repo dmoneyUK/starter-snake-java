@@ -112,24 +112,27 @@ public class GameBoardUtils {
         //PrintingUtils.printBoard(boardClone);
         
         // If not grow in the next turn, current tail is safe.
-        if (!me.getTail().equals(me.getBody().get(me.getLength() - 2))) {
-            boardClone[me.getTail().getRow()][me.getTail().getColumn()] = 0;
-            Vertex head = me.getHead();
-            Vertex tail = me.getTail();
-            if (head.getRow() == tail.getRow()) { // when head and tail are on same row, the body behind the tail are safe.
+        if (me.getLength() < 5 || !me.getTail().equals(me.getBody().get(me.getLength() - 2))) {
+            int headRow = me.getHead().getRow();
+            int headColumn = me.getHead().getColumn();
+            int tailRow = me.getTail().getRow();
+            int tailColumn = me.getTail().getColumn();
+        
+            boardClone[tailRow][tailColumn] = 0;
+            if (headRow == tailRow) { // when head and tail are on same row, the body behind the tail are safe.
                 me.getBody()
                   .parallelStream()
-                  .filter(v -> v.getRow() == head.getRow())
-                  .filter(v -> head.getColumn() > tail.getColumn() && tail.getColumn() > v.getColumn()
-                          || head.getColumn() < tail.getColumn() && tail.getColumn() < v.getColumn())
+                  .filter(v -> v.getRow() == headRow)
+                  .filter(v -> headColumn > tailColumn && tailColumn > v.getColumn()
+                          || headColumn < tailColumn && tailColumn < v.getColumn())
                   .forEach(v -> boardClone[v.getRow()][v.getColumn()] = 0);
-                
-            } else if (head.getColumn() == tail.getColumn()) { // when head and tail are on same column, the body behind the tail are safe.
+            
+            } else if (headColumn == tailColumn) { // when head and tail are on same column, the body behind the tail are safe.
                 me.getBody()
                   .parallelStream()
-                  .filter(v -> v.getColumn() == head.getColumn())
-                  .filter(v -> head.getRow() > tail.getRow() && tail.getRow() > v.getRow()
-                          || head.getRow() < tail.getRow() && tail.getRow() < v.getRow())
+                  .filter(v -> v.getColumn() == headColumn)
+                  .filter(v -> headRow > tailRow && tailRow > v.getRow()
+                          || headRow < tailRow && tailRow < v.getRow())
                   .forEach(v -> boardClone[v.getRow()][v.getColumn()] = 0);
             }
             
