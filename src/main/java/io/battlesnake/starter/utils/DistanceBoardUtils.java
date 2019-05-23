@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 
+import static io.battlesnake.starter.utils.GameBoardUtils.getMyGameBoard;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 
@@ -50,9 +51,31 @@ public class DistanceBoardUtils {
         
     }
     
-    public static Map<Vertex, int[][]> getAllSnakesDistanceBoards(GameBoard gameBoard) {
+    public static Map<Vertex, int[][]> getSafeAllSnakesDistanceBoards(GameBoard gameBoard) {
         
-        int[][] myDistanceBoard = getMyDistanceBoard(gameBoard);
+        Map<Vertex, int[][]> allSnakesDistanceBoards = getOtherSnakesDistanceBoards(gameBoard);
+        
+        int[][] myRiskyDistanceBoard = getMySafeDistanceBoard(gameBoard);
+        
+        allSnakesDistanceBoards.put(gameBoard.getMe().getHead(), myRiskyDistanceBoard);
+        
+        return allSnakesDistanceBoards;
+        
+    }
+    
+    public static Map<Vertex, int[][]> getRiskyAllSnakesDistanceBoards(GameBoard gameBoard) {
+        
+        Map<Vertex, int[][]> allSnakesDistanceBoards = getOtherSnakesDistanceBoards(gameBoard);
+        
+        int[][] myRiskyDistanceBoard = getMyRiskyDistanceBoard(gameBoard);
+        
+        allSnakesDistanceBoards.put(gameBoard.getMe().getHead(), myRiskyDistanceBoard);
+        
+        return allSnakesDistanceBoards;
+        
+    }
+    
+    private static Map<Vertex, int[][]> getOtherSnakesDistanceBoards(GameBoard gameBoard) {
         
         Snake me = gameBoard.getMe();
         Map<Vertex, int[][]> allSnakesDistanceBoards = gameBoard.getSnakes()
@@ -62,12 +85,13 @@ public class DistanceBoardUtils {
                                                                 .collect(toMap(identity(),
                                                                                head -> calculateDistanceBoard(gameBoard.getBoard(), head)));
         
-        allSnakesDistanceBoards.put(me.getHead(), myDistanceBoard);
         return allSnakesDistanceBoards;
         
     }
     
+    
     public static long findAvailableSpaceNearby(GameBoard gameBoard, Vertex start) {
+        
         int[][] distanceBoard = calculateDistanceBoard(gameBoard.getBoard(), start);
         long count = Arrays.stream(distanceBoard)
                            .flatMapToInt(Arrays::stream)
@@ -78,27 +102,29 @@ public class DistanceBoardUtils {
     }
     
     // Get the distance board for me. This takes consideration of the dangerous areas on the game board.
-    private static int[][] getMyDistanceBoard(GameBoard gameBoard) {
-       
-        int[][] boardClone = GameBoardUtils.getBoardClone(gameBoard);
-    
-        //PrintingUtils.printBoard(boardClone);
-    
+    public static int[][] getMySafeDistanceBoard(GameBoard gameBoard) {
+        
         Snake me = gameBoard.getMe();
-        // If not grow in the next turn, current tail is safe.
-        if (!me.getTail().equals(me.getBody().get(me.getLength() - 2))) {
-            boardClone[me.getTail().getRow()][me.getTail().getColumn()] = 0;
-        }
-        if (me.getHealth() > 20) {
-            GameBoardUtils.findDangerous(gameBoard)
-                          .parallelStream()
-                          .forEach(dangerous -> GameBoardUtils.markDangerous(boardClone, dangerous));
-        }
-        //PrintingUtils.printBoard(boardClone);
-        return calculateDistanceBoard(boardClone, me.getHead());
+    
+        int[][] myGameBoard = getMyGameBoard(gameBoard);
+    
+        GameBoardUtils.findDangerous(gameBoard)
+                      .parallelStream()
+                      .forEach(dangerous -> GameBoardUtils.markDangerous(myGameBoard, dangerous));
+    
+        return calculateDistanceBoard(myGameBoard, me.getHead());
     }
     
-    // DFS search to calculate the distance from the snake's head to each vertex on the game board.
+    // Get the distance board for me. This takes consideration of the dangerous areas on the game board.
+    public static int[][] getMyRiskyDistanceBoard(GameBoard gameBoard) {
+        
+        Snake me = gameBoard.getMe();
+        int[][] myGameBoard = getMyGameBoard(gameBoard);
+        
+        return calculateDistanceBoard(myGameBoard, me.getHead());
+    }
+    
+    // DFS search to calculate the distance from the snake's head to each target on the game board.
     private static int[][] calculateDistanceBoard(int[][] board, Vertex snakeHead) {
         int[][] distance = createDistanceBoard(board.length);
         

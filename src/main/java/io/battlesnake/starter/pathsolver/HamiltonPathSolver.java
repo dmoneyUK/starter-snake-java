@@ -13,7 +13,6 @@ public class HamiltonPathSolver {
     
     public boolean findPath(int[][] graph) {
         resetPath();
-        
         return false;
     }
     

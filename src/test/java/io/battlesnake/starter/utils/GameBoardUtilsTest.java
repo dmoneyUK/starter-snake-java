@@ -21,7 +21,7 @@ class GameBoardUtilsTest {
     private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
     
     @Test
-    void shouldReturnEmptyListWhenFoodIsNotInTheRequest() throws IOException {
+    void shouldReturnEmptyListWhenFoodIsNotInTheRequest() throws Exception {
         JsonNode request = JSON_MAPPER.readTree("{\"game\":{\"id\":\"4b6d94c6-ad93-491d-984b-0ef5f7cfc92d\"},\"turn\":9,\"board\":{\"height\":11,\"width\":11,\"food\":[],\"snakes\":[{\"id\":\"gs_4GFYtDPqHVj7SXdW948w4qXG\",\"name\":\"dmoneyUK / JDSnake\",\"health\":96,\"body\":[{\"x\":1,\"y\":10},{\"x\":1,\"y\":9},{\"x\":1,\"y\":8},{\"x\":1,\"y\":7}]}]},\"you\":{\"id\":\"gs_4GFYtDPqHVj7SXdW948w4qXG\",\"name\":\"dmoneyUK / JDSnake\",\"health\":96,\"body\":[{\"x\":1,\"y\":10},{\"x\":1,\"y\":9},{\"x\":1,\"y\":8},{\"x\":1,\"y\":7}]}}\n");
     
         List<Vertex> actual = GameBoardUtils.initGameBoard(request).getFoodList();
@@ -31,7 +31,7 @@ class GameBoardUtilsTest {
     }
     
     @Test
-    void shouldReturnAListWithOneVertexWhenOneInTheRequest() throws IOException {
+    void shouldReturnAListWithOneVertexWhenOneInTheRequest() throws Exception {
         JsonNode request = JSON_MAPPER.readTree("{\"game\":{\"id\":\"4b6d94c6-ad93-491d-984b-0ef5f7cfc92d\"},\"turn\":9,\"board\":{\"height\":11,\"width\":11,\"food\":[{\"x\":3,\"y\":3}],\"snakes\":[{\"id\":\"gs_4GFYtDPqHVj7SXdW948w4qXG\",\"name\":\"dmoneyUK / JDSnake\",\"health\":96,\"body\":[{\"x\":1,\"y\":10},{\"x\":1,\"y\":9},{\"x\":1,\"y\":8},{\"x\":1,\"y\":7}]}]},\"you\":{\"id\":\"gs_4GFYtDPqHVj7SXdW948w4qXG\",\"name\":\"dmoneyUK / JDSnake\",\"health\":96,\"body\":[{\"x\":1,\"y\":10},{\"x\":1,\"y\":9},{\"x\":1,\"y\":8},{\"x\":1,\"y\":7}]}}\n");
         
         GameBoard actualGameBoard = GameBoardUtils.initGameBoard(request);

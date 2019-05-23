@@ -4,21 +4,20 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.battlesnake.starter.utils.JsonFixtures;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.util.Map;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
-public class ShouldMoveToEmptyVertex extends SnakeAppHandlerTest{
+class shouldEatFood extends SnakeAppHandlerTest {
     
     @Test
-    void ShouldMoveToEmptyVertex() throws IOException {
-        String reqJson = JsonFixtures.read("fixtures/shouldMoveToEmptyVertex.json");
+    void shouldEatFood() throws Exception {
+        String reqJson = JsonFixtures.read("fixtures/shouldEatFood.json");
         
         JsonNode request = JSON_MAPPER.readTree(reqJson);
         
         Map<String, String> response = testObj.move(request);
-        assertThat(response.get("move")).isIn("right","left");
+        assertThat(response.get("move")).isNotEqualTo("left");
     }
-    
+ 
 }

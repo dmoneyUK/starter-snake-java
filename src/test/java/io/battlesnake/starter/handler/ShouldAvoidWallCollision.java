@@ -11,7 +11,7 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 
 public class ShouldAvoidWallCollision extends SnakeAppHandlerTest {
     @Test
-    void shouldAvoidWallCollisionAndMoveDown() throws IOException {
+    void shouldAvoidWallCollisionAndMoveDown() throws Exception {
         String reqJson = JsonFixtures.read("fixtures/shouldAvoidWallCollison.json");
         
         JsonNode request = JSON_MAPPER.readTree(reqJson);
@@ -21,7 +21,7 @@ public class ShouldAvoidWallCollision extends SnakeAppHandlerTest {
     }
     
     @Test
-    void shouldAvoidWallCollisionAndMoveDown2() throws IOException {
+    void shouldAvoidWallCollisionAndMoveDown2() throws Exception {
         String reqJson = JsonFixtures.read("fixtures/shouldAvoidWallCollison2.json");
         
         JsonNode request = JSON_MAPPER.readTree(reqJson);

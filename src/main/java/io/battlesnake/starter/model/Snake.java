@@ -34,7 +34,7 @@ public class Snake {
     }
     
     public boolean isShortThan(Snake other) {
-        return body.size() < other.getBody().size();
+        return other.getBody().size() < body.size();
     }
     
     public List<Vertex> getMovementRange() {

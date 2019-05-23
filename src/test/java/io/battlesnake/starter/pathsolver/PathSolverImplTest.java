@@ -9,7 +9,7 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-class FoodPathSolverTest {
+class PathSolverImplTest {
     
     @Test
     public void test() {

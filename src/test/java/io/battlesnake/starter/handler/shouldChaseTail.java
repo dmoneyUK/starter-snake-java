@@ -15,7 +15,7 @@ class shouldChaseTail {
     private SnakeHandler testObj = new SnakeHandler();
     
     @Test
-    void shouldChaseTail1() throws IOException {
+    void shouldChaseTail1() throws Exception {
         String reqJson = JsonFixtures.read("fixtures/shouldChaseTail1.json");
         
         JsonNode request = JSON_MAPPER.readTree(reqJson);
@@ -25,7 +25,7 @@ class shouldChaseTail {
     }
     
     @Test
-    void shouldChaseTail2() throws IOException {
+    void shouldChaseTail2() throws Exception {
         String reqJson = JsonFixtures.read("fixtures/shouldChaseTail2.json");
         
         JsonNode request = JSON_MAPPER.readTree(reqJson);
@@ -35,12 +35,22 @@ class shouldChaseTail {
     }
     
     @Test
-    void shouldChaseTail3() throws IOException {
+    void shouldChaseTail3() throws Exception {
         String reqJson = JsonFixtures.read("fixtures/shouldChaseTail3.json");
         
         JsonNode request = JSON_MAPPER.readTree(reqJson);
         
         Map<String, String> response = testObj.move(request);
         assertThat(response.get("move")).isEqualTo("down");
+    }
+    
+    @Test
+    void shouldChaseTail4() throws Exception {
+        String reqJson = JsonFixtures.read("fixtures/shouldChaseTail4.json");
+        
+        JsonNode request = JSON_MAPPER.readTree(reqJson);
+        
+        Map<String, String> response = testObj.move(request);
+        assertThat(response.get("move")).isEqualTo("up");
     }
 }
