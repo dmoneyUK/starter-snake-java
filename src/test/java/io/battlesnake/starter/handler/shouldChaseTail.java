@@ -53,4 +53,14 @@ class shouldChaseTail {
         Map<String, String> response = testObj.move(request);
         assertThat(response.get("move")).isEqualTo("up");
     }
+    
+    @Test
+    void shouldChaseTail5() throws Exception {
+        String reqJson = JsonFixtures.read("fixtures/shouldChaseTail5.json");
+        
+        JsonNode request = JSON_MAPPER.readTree(reqJson);
+        
+        Map<String, String> response = testObj.move(request);
+        assertThat(response.get("move")).isEqualTo("left");
+    }
 }

@@ -4,6 +4,7 @@ import io.battlesnake.starter.model.GameBoard;
 import io.battlesnake.starter.model.Vertex;
 import io.battlesnake.starter.service.StrategyService;
 import io.battlesnake.starter.utils.FutureHelper;
+import io.battlesnake.starter.utils.PrintingUtils;
 
 import java.util.Map;
 import java.util.Optional;
@@ -57,6 +58,7 @@ public class PathSolverImpl implements PathSolver {
         CompletableFuture<Vertex> safeFuture = FutureHelper.asyncExecute(() -> {
             Map<Vertex, int[][]> safeSnakesDistanceBoards = getSafeAllSnakesDistanceBoards(gameBoard);
             int[][] myDistanceBoard = safeSnakesDistanceBoards.get(currentPos);
+            PrintingUtils.printBoard(myDistanceBoard);
             Vertex target = strategyService.makeDecision(gameBoard, safeSnakesDistanceBoards);
             return backTrack(myDistanceBoard, target);
         });

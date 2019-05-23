@@ -111,7 +111,6 @@ public class DistanceBoardUtils {
         GameBoardUtils.findDangerous(gameBoard)
                       .parallelStream()
                       .forEach(dangerous -> GameBoardUtils.markDangerous(myGameBoard, dangerous));
-    
         return calculateDistanceBoard(myGameBoard, me.getHead());
     }
     
