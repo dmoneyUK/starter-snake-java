@@ -23,7 +23,7 @@ import static io.battlesnake.starter.utils.MovementUtils.backTrack;
 public class StrategyFn {
     
     public static BiFunction<GameState, Optional<Vertex>, StrategyResult> eagerFoodCheck = (gameState, optionalTarget) -> {
-        log.info("eagerFoodCheck");
+        //log.info("eagerFoodCheck");
         Snake me = gameState.getGameBoard().getMe();
         int[][] myDistanceBoard = gameState.getSnakesDistanceBoardMap().get(me.getHead());
         boolean canWait = gameState.getGameBoard().getFoodList()
@@ -38,7 +38,7 @@ public class StrategyFn {
     };
     
     public static BiFunction<GameState, Optional<Vertex>, StrategyResult> lenghtCheck = (gameState, optionalTarget) -> {
-        log.info("lenghtCheck");
+        //log.info("lenghtCheck");
         Snake me = gameState.getGameBoard().getMe();
         if (me.getLength() > 10) {
             return StrategyResult.builder().success(true).build();
@@ -48,7 +48,7 @@ public class StrategyFn {
     };
     
     public static BiFunction<GameState, Optional<Vertex>, StrategyResult> findNearestFoodStrategy = (gameState, optionalPara) -> {
-        log.info("findNearestFoodStrategy");
+        //log.info("findNearestFoodStrategy");
         GameBoard gameBoard = gameState.getGameBoard();
         int[][] distanceBoard = gameState.getSnakesDistanceBoardMap().get(gameBoard.getMe().getHead());
         List<Vertex> foodList = gameBoard.getFoodList();
@@ -60,7 +60,7 @@ public class StrategyFn {
     };
     
     public static BiFunction<GameState, Optional<Vertex>, StrategyResult> stealOthersFoodStrategy = (gameState, optionalPara) -> {
-        log.info("stealOthersFoodStrategy");
+        //log.info("stealOthersFoodStrategy");
         
         GameBoard gameBoard = gameState.getGameBoard();
         Map<Vertex, int[][]> snakesDistanceBoardMap = gameState.getSnakesDistanceBoardMap();
@@ -88,7 +88,7 @@ public class StrategyFn {
     };
     
     public static BiFunction<GameState, Optional<Vertex>, StrategyResult> chaseTailStrategy = (gameState, optionalPara) -> {
-        log.info("chaseTailStrategy");
+        //log.info("chaseTailStrategy");
         GameBoard gameBoard = gameState.getGameBoard();
         int[][] myDistanceBoard = gameState.getSnakesDistanceBoardMap().get(gameBoard.getMe().getHead());
         Vertex tail = gameState.getGameBoard().getMe().getTail();
@@ -99,7 +99,7 @@ public class StrategyFn {
     };
     
     public static BiFunction<GameState, Optional<Vertex>, StrategyResult> goFurthestStrategy = (gameState, optionalPara) -> {
-        log.info("goFurthestStrategy");
+        //log.info("goFurthestStrategy");
         GameBoard gameBoard = gameState.getGameBoard();
         int[][] myDistanceBoard = gameState.getSnakesDistanceBoardMap().get(gameBoard.getMe().getHead());
         return getFarthestVertex(myDistanceBoard)
@@ -117,7 +117,7 @@ public class StrategyFn {
     
     //TODO: improve the safe guard
     public static BiFunction<GameState, Optional<Vertex>, StrategyResult> safeGuardStrategy = (gameState, optionalPara) -> {
-        log.info("safeGuardStrategy");
+        //log.info("safeGuardStrategy");
         GameBoard gameBoard = gameState.getGameBoard();
         Snake me = gameBoard.getMe();
         int[][] myDistanceBoard = gameState.getSnakesDistanceBoardMap().get(me.getHead());
