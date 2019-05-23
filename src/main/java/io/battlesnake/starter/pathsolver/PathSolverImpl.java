@@ -58,7 +58,6 @@ public class PathSolverImpl implements PathSolver {
         CompletableFuture<Vertex> safeFuture = FutureHelper.asyncExecute(() -> {
             Map<Vertex, int[][]> safeSnakesDistanceBoards = getSafeAllSnakesDistanceBoards(gameBoard);
             int[][] myDistanceBoard = safeSnakesDistanceBoards.get(currentPos);
-            PrintingUtils.printBoard(myDistanceBoard);
             Vertex target = strategyService.makeDecision(gameBoard, safeSnakesDistanceBoards);
             return backTrack(myDistanceBoard, target);
         });
