@@ -83,7 +83,7 @@ public class GameBoardUtils {
         for (int[] dir : dirs) {
             int y = start.getRow() + dir[0];
             int x = start.getColumn() + dir[1];
-            if (board[y][x] == 0) {
+            if (board[y][x] != 1) {
                 return Vertex.builder().row(y).column(x).build();
             }
         }

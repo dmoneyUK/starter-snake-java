@@ -3,6 +3,7 @@ package io.battlesnake.starter.service.strategy;
 import io.battlesnake.starter.model.GameBoard;
 import io.battlesnake.starter.model.Snake;
 import io.battlesnake.starter.model.Vertex;
+import io.battlesnake.starter.utils.PrintingUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -102,6 +103,7 @@ public class StrategyFn {
         //log.info("goFurthestStrategy");
         GameBoard gameBoard = gameState.getGameBoard();
         int[][] myDistanceBoard = gameState.getSnakesDistanceBoardMap().get(gameBoard.getMe().getHead());
+        PrintingUtils.printBoard(myDistanceBoard);
         return getFarthestVertex(myDistanceBoard)
                 .map(v -> StrategyResult.builder().success(true).target(v).build())
                 .orElse(STRATEGY_FAILURE);

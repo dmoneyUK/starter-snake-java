@@ -36,7 +36,7 @@ public class PrintingUtils {
     private PrintingUtils() {
     }
     
-    public static void printBoard(int[][] board) {
+    public static synchronized void printBoard(int[][] board) {
         boardConsumer.accept(board);
     }
     
