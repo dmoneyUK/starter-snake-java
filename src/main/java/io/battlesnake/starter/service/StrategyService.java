@@ -42,12 +42,15 @@ public class StrategyService {
             new StageTransitRule(HEALTHY, lenghtCheck, STRONG, WEAK),
             new StageTransitRule(STARVING, findNearestFoodStrategy, FOUND_FOOD, NO_FOOD),
             new StageTransitRule(WEAK,stealOthersFoodStrategy, FOUND_FOOD, NO_FOOD),
-            new StageTransitRule(STRONG, chaseTailStrategy, DECIDED, CANNOT_REACH_TAIL),
+            new StageTransitRule(STRONG, goFurthestStrategy, FOUND_FURTHEST, NO_EXIT),
+            //new StageTransitRule(STRONG, chaseTailStrategy, DECIDED, CANNOT_REACH_TAIL),
             new StageTransitRule(FOUND_FOOD, safeGuardStrategy, DECIDED, NO_FOOD),
-            new StageTransitRule(NO_FOOD, chaseTailStrategy, DECIDED, CANNOT_REACH_TAIL),
-            new StageTransitRule(CANNOT_REACH_TAIL, goFurthestStrategy, FOUND_FURTHEST, NO_EXIT),
+            new StageTransitRule(NO_FOOD, goFurthestStrategy, DECIDED, NO_EXIT),
+            //new StageTransitRule(NO_FOOD, chaseTailStrategy, DECIDED, CANNOT_REACH_TAIL),
+            //new StageTransitRule(CANNOT_REACH_TAIL, goFurthestStrategy, FOUND_FURTHEST, NO_EXIT),
             new StageTransitRule(FOUND_FURTHEST, safeGuardStrategy, DECIDED, NO_EXIT),
-            new StageTransitRule(NO_EXIT, goEmptyNeighberStrategy, DECIDED, DECIDED),
+            new StageTransitRule(NO_EXIT, chaseTailStrategy, DECIDED, CANNOT_REACH_TAIL),
+            new StageTransitRule(CANNOT_REACH_TAIL, goEmptyNeighberStrategy, DECIDED, DECIDED),
             
             // TODO use hamilton instead of furthest
         
