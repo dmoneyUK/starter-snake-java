@@ -11,50 +11,61 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import java.util.function.BiFunction;
 
+import static io.battlesnake.starter.service.strategy.StrategyFn.bigSnakeCheck;
 import static io.battlesnake.starter.service.strategy.StrategyFn.chaseTailStrategy;
 import static io.battlesnake.starter.service.strategy.StrategyFn.eagerFoodCheck;
 import static io.battlesnake.starter.service.strategy.StrategyFn.findNearestFoodStrategy;
 import static io.battlesnake.starter.service.strategy.StrategyFn.goEmptyNeighberStrategy;
 import static io.battlesnake.starter.service.strategy.StrategyFn.goFurthestStrategy;
-import static io.battlesnake.starter.service.strategy.StrategyFn.lenghtCheck;
+import static io.battlesnake.starter.service.strategy.StrategyFn.middleSnakeCheck;
 import static io.battlesnake.starter.service.strategy.StrategyFn.safeGuardStrategy;
 import static io.battlesnake.starter.service.strategy.StrategyFn.stealOthersFoodStrategy;
+import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage.BIG;
 import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage.CANNOT_REACH_TAIL;
 import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage.DECIDED;
 import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage.FOUND_FOOD;
 import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage.FOUND_FURTHEST;
 import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage.HEALTHY;
 import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage.INIT;
+import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage.MIDDLE;
 import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage.NO_EXIT;
 import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage.NO_FOOD;
+import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage.SMALL;
 import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage.STARVING;
-import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage.STRONG;
-import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage.WEAK;
 
 @Slf4j
 public class StrategyService {
     
+    private Random rd = new Random();
     private StageTransitRule[] strategySelectTable = {
-            
+        
             new StageTransitRule(INIT, eagerFoodCheck, STARVING, HEALTHY),
-            new StageTransitRule(HEALTHY, lenghtCheck, STRONG, WEAK),
+            new StageTransitRule(HEALTHY, middleSnakeCheck, MIDDLE, SMALL),
+            new StageTransitRule(MIDDLE, bigSnakeCheck, BIG, MIDDLE),
             new StageTransitRule(STARVING, findNearestFoodStrategy, FOUND_FOOD, NO_FOOD),
-            new StageTransitRule(WEAK,stealOthersFoodStrategy, FOUND_FOOD, NO_FOOD),
-            new StageTransitRule(STRONG, goFurthestStrategy, FOUND_FURTHEST, NO_EXIT),
-            //new StageTransitRule(STRONG, chaseTailStrategy, DECIDED, CANNOT_REACH_TAIL),
+            new StageTransitRule(SMALL, stealOthersFoodStrategy, FOUND_FOOD, NO_FOOD),
+            new StageTransitRule(MIDDLE, goFurthestStrategy, FOUND_FURTHEST, NO_EXIT),
+            new StageTransitRule(BIG, chaseTailStrategy, DECIDED, CANNOT_REACH_TAIL),
             new StageTransitRule(FOUND_FOOD, safeGuardStrategy, DECIDED, NO_FOOD),
             new StageTransitRule(NO_FOOD, goFurthestStrategy, DECIDED, NO_EXIT),
-            //new StageTransitRule(NO_FOOD, chaseTailStrategy, DECIDED, CANNOT_REACH_TAIL),
-            //new StageTransitRule(CANNOT_REACH_TAIL, goFurthestStrategy, FOUND_FURTHEST, NO_EXIT),
             new StageTransitRule(FOUND_FURTHEST, safeGuardStrategy, DECIDED, NO_EXIT),
             new StageTransitRule(NO_EXIT, chaseTailStrategy, DECIDED, CANNOT_REACH_TAIL),
             new StageTransitRule(CANNOT_REACH_TAIL, goEmptyNeighberStrategy, DECIDED, DECIDED),
-            
             // TODO use hamilton instead of furthest
         
     };
+    
+    private StageTransitRule randomRuleForStrongStage() {
+        return randomRules(new StageTransitRule(MIDDLE, goFurthestStrategy, FOUND_FURTHEST, NO_EXIT),
+                           new StageTransitRule(MIDDLE, chaseTailStrategy, DECIDED, CANNOT_REACH_TAIL));
+    }
+    
+    private StageTransitRule randomRules(StageTransitRule... options) {
+        return options[rd.nextInt(options.length)];
+    }
     
     public Vertex makeDecision(GameBoard gameBoard, Map<Vertex, int[][]> snakesDistanceBoardMap) {
         GameState gameState = GameState.builder()

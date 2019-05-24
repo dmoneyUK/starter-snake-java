@@ -5,6 +5,7 @@ import io.battlesnake.starter.model.Vertex;
 import io.battlesnake.starter.service.StrategyService;
 import io.battlesnake.starter.utils.FutureHelper;
 import io.battlesnake.starter.utils.PrintingUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 import java.util.Optional;
@@ -15,6 +16,7 @@ import static io.battlesnake.starter.utils.DistanceBoardUtils.getRiskyAllSnakesD
 import static io.battlesnake.starter.utils.DistanceBoardUtils.getSafeAllSnakesDistanceBoards;
 import static io.battlesnake.starter.utils.MovementUtils.backTrack;
 
+@Slf4j
 public class PathSolverImpl implements PathSolver {
     
     private static int[][] dirs = {{1, 0}, {-1, 0}, {0, -1}, {0, 1}};

@@ -5,8 +5,6 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
-import java.util.Optional;
-
 @Builder
 @Getter
 @EqualsAndHashCode
@@ -15,8 +13,9 @@ public class StrategyTransitStage {
         INIT,
         STARVING,
         HEALTHY,
-        STRONG,
-        WEAK,
+        MIDDLE,
+        BIG,
+        SMALL,
         FOUND_FOOD,
         NO_FOOD,
         DECIDED,
