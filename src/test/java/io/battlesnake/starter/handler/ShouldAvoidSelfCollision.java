@@ -52,15 +52,15 @@ public class ShouldAvoidSelfCollision extends SnakeAppHandlerTest{
         assertThat(response.get("move")).isEqualTo("right");
     }
     
-    //@Test
-    //void shouldAvoidSelfCollision5AndMoveDown() throws IOException {
-    //    String reqJson = JsonFixtures.read("fixtures/shouldAvoidSelfCollision5.json");
-    //
-    //    JsonNode request = JSON_MAPPER.readTree(reqJson);
-    //
-    //    Map<String, String> response = testObj.move(request);
-    //    assertThat(response.get("move")).isEqualTo("down");
-    //}
+    @Test
+    void shouldAvoidSelfCollision5AndMoveDown() throws Exception {
+        String reqJson = JsonFixtures.read("fixtures/shouldAvoidSelfCollision5.json");
+
+        JsonNode request = JSON_MAPPER.readTree(reqJson);
+
+        Map<String, String> response = testObj.move(request);
+        assertThat(response.get("move")).isNotEqualTo("right");
+    }
     
     @Test
     void shouldAvoidSelfCollision6AndMoveRight() throws Exception {

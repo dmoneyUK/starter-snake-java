@@ -113,7 +113,7 @@ public class GameBoardUtils {
         
         // If not grow in the next turn, current tail is safe.
         int length = me.getLength();
-        if (length > 2 && (length < 5 || !me.getTail().equals(me.getBody().get(length - 2)))) {
+        if (length > 3 && (length < 5 || !me.getTail().equals(me.getBody().get(length - 2)))) {
             int headRow = me.getHead().getRow();
             int headColumn = me.getHead().getColumn();
             int tailRow = me.getTail().getRow();
