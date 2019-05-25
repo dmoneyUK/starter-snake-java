@@ -19,8 +19,6 @@ import static io.battlesnake.starter.utils.MovementUtils.backTrack;
 @Slf4j
 public class PathSolverImpl implements PathSolver {
     
-    private static int[][] dirs = {{1, 0}, {-1, 0}, {0, -1}, {0, 1}};
-    
     private final StrategyService strategyService;
     private final Executor executor;
     

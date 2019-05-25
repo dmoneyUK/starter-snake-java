@@ -37,10 +37,10 @@ public class StrategyFn {
         return STRATEGY_FAILURE;
     };
     
-    public static BiFunction<GameState, Optional<Vertex>, StrategyResult> middleSnakeCheck = (gameState, optionalTarget) -> {
-        //log.info("middleSnakeCheck");
+    public static BiFunction<GameState, Optional<Vertex>, StrategyResult> smallSnakeCheck = (gameState, optionalTarget) -> {
+        //log.info("smallSnakeCheck");
         Snake me = gameState.getGameBoard().getMe();
-        if (me.getLength() > 10) {
+        if (me.getLength() < 10) {
             return StrategyResult.builder().success(true).build();
         }
         

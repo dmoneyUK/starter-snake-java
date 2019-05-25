@@ -20,8 +20,8 @@ import static io.battlesnake.starter.service.strategy.StrategyFn.eagerFoodCheck;
 import static io.battlesnake.starter.service.strategy.StrategyFn.findNearestFoodStrategy;
 import static io.battlesnake.starter.service.strategy.StrategyFn.goEmptyNeighberStrategy;
 import static io.battlesnake.starter.service.strategy.StrategyFn.goFurthestStrategy;
-import static io.battlesnake.starter.service.strategy.StrategyFn.middleSnakeCheck;
 import static io.battlesnake.starter.service.strategy.StrategyFn.safeGuardStrategy;
+import static io.battlesnake.starter.service.strategy.StrategyFn.smallSnakeCheck;
 import static io.battlesnake.starter.service.strategy.StrategyFn.stealOthersFoodStrategy;
 import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage.BIG;
 import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage.CANNOT_REACH_TAIL;
@@ -31,6 +31,7 @@ import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage
 import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage.HEALTHY;
 import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage.INIT;
 import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage.MIDDLE;
+import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage.NOT_SMALL;
 import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage.NO_EXIT;
 import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage.NO_FOOD;
 import static io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage.SMALL;
@@ -43,8 +44,8 @@ public class StrategyService {
     private StageTransitRule[] strategySelectTable = {
         
             new StageTransitRule(INIT, eagerFoodCheck, STARVING, HEALTHY),
-            new StageTransitRule(HEALTHY, middleSnakeCheck, MIDDLE, SMALL),
-            new StageTransitRule(MIDDLE, bigSnakeCheck, BIG, MIDDLE),
+            new StageTransitRule(HEALTHY, smallSnakeCheck, SMALL, NOT_SMALL),
+            new StageTransitRule(NOT_SMALL, bigSnakeCheck, BIG, MIDDLE),
             new StageTransitRule(STARVING, findNearestFoodStrategy, FOUND_FOOD, NO_FOOD),
             new StageTransitRule(SMALL, stealOthersFoodStrategy, FOUND_FOOD, NO_FOOD),
             new StageTransitRule(MIDDLE, goFurthestStrategy, FOUND_FURTHEST, NO_EXIT),

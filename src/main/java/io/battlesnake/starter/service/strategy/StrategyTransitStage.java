@@ -16,6 +16,7 @@ public class StrategyTransitStage {
         MIDDLE,
         BIG,
         SMALL,
+        NOT_SMALL,
         FOUND_FOOD,
         NO_FOOD,
         DECIDED,
