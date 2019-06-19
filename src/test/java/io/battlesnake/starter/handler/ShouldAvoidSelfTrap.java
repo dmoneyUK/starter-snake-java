@@ -18,7 +18,7 @@ public class ShouldAvoidSelfTrap extends SnakeAppHandlerTest {
         JsonNode request = JSON_MAPPER.readTree(reqJson);
 
         Map<String, String> response = testObj.move(request);
-        assertThat(response.get("move")).isEqualTo("down");
+        assertThat(response.get("move")).isNotEqualTo("left");
     }
     
     @Test

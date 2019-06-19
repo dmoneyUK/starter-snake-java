@@ -3,13 +3,10 @@ package io.battlesnake.starter.pathsolver;
 import io.battlesnake.starter.model.GameBoard;
 import io.battlesnake.starter.model.Vertex;
 import io.battlesnake.starter.service.StrategyService;
-import io.battlesnake.starter.utils.FutureHelper;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 
 import static io.battlesnake.starter.utils.DistanceBoardUtils.getRiskyAllSnakesDistanceBoards;
 import static io.battlesnake.starter.utils.DistanceBoardUtils.getSafeAllSnakesDistanceBoards;
@@ -52,23 +49,35 @@ public class PathSolverImpl implements PathSolver {
     private Vertex findNextPos(GameBoard gameBoard, Vertex currentPos) {
     
         // Calculate the distance board for all snakes
-        CompletableFuture<Vertex> safeFuture = FutureHelper.asyncExecute(() -> {
-            Map<Vertex, int[][]> safeSnakesDistanceBoards = getSafeAllSnakesDistanceBoards(gameBoard);
-            int[][] mySafeDistanceBoard = safeSnakesDistanceBoards.get(currentPos);
-            return strategyService.makeDecision(gameBoard, safeSnakesDistanceBoards)
-                                  .map(target -> backTrack(mySafeDistanceBoard, target))
-                                  .orElse(null);
-        });
+        //CompletableFuture<Vertex> safeFuture = FutureHelper.asyncExecute(() -> {
+        //    Map<Vertex, int[][]> safeSnakesDistanceBoards = getSafeAllSnakesDistanceBoards(gameBoard);
+        //    int[][] mySafeDistanceBoard = safeSnakesDistanceBoards.get(currentPos);
+        //    return strategyService.makeDecision(gameBoard, safeSnakesDistanceBoards)
+        //                          .map(target -> backTrack(mySafeDistanceBoard, target))
+        //                          .orElse(null);
+        //});
     
-        CompletableFuture<Vertex> riskyFuture = FutureHelper.asyncExecute(() -> {
-            Map<Vertex, int[][]> riskySnakesDistanceBoards = getRiskyAllSnakesDistanceBoards(gameBoard);
-            int[][] myRiskDistanceBoard = riskySnakesDistanceBoards.get(currentPos);
-            return strategyService.makeDecision(gameBoard, riskySnakesDistanceBoards)
-                                  .map(target -> backTrack(myRiskDistanceBoard, target))
-                                  .orElse(null);
-        });
+        //CompletableFuture<Vertex> riskyFuture = FutureHelper.asyncExecute(() -> {
+        //    Map<Vertex, int[][]> riskySnakesDistanceBoards = getRiskyAllSnakesDistanceBoards(gameBoard);
+        //    int[][] myRiskDistanceBoard = riskySnakesDistanceBoards.get(currentPos);
+        //    return strategyService.makeDecision(gameBoard, riskySnakesDistanceBoards)
+        //                          .map(target -> backTrack(myRiskDistanceBoard, target))
+        //                          .orElse(null);
+        //});
     
-        return Optional.ofNullable(safeFuture.join()).orElse(riskyFuture.join());
+        Map<Vertex, int[][]> safeSnakesDistanceBoards = getSafeAllSnakesDistanceBoards(gameBoard);
+        int[][] mySafeDistanceBoard = safeSnakesDistanceBoards.get(currentPos);
+        Vertex safeOption = strategyService.makeDecision(gameBoard, safeSnakesDistanceBoards)
+                                           .map(target -> backTrack(mySafeDistanceBoard, target))
+                                           .orElse(null);
+    
+        Map<Vertex, int[][]> riskySnakesDistanceBoards = getRiskyAllSnakesDistanceBoards(gameBoard);
+        int[][] myRiskDistanceBoard = riskySnakesDistanceBoards.get(currentPos);
+        Vertex riskyOption = strategyService.makeDecision(gameBoard, riskySnakesDistanceBoards)
+                                            .map(target -> backTrack(myRiskDistanceBoard, target))
+                                            .orElse(null);
+    
+        return Optional.ofNullable(safeOption).orElse(riskyOption);
     }
     
 }
