@@ -17,7 +17,7 @@ public class ShouldAvoidWallCollision extends SnakeAppHandlerTest {
         JsonNode request = JSON_MAPPER.readTree(reqJson);
         
         Map<String, String> response = testObj.move(request);
-        assertThat(response.get("move")).isEqualTo("down");
+        assertThat(response.get("move")).isNotEqualTo("right");
     }
     
     @Test

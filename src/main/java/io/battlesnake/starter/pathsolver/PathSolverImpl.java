@@ -4,7 +4,7 @@ import io.battlesnake.starter.model.GameBoard;
 import io.battlesnake.starter.model.Vertex;
 import io.battlesnake.starter.service.StrategyService;
 import io.battlesnake.starter.utils.FutureHelper;
-import io.battlesnake.starter.utils.PrintingUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 import java.util.Optional;
@@ -15,9 +15,8 @@ import static io.battlesnake.starter.utils.DistanceBoardUtils.getRiskyAllSnakesD
 import static io.battlesnake.starter.utils.DistanceBoardUtils.getSafeAllSnakesDistanceBoards;
 import static io.battlesnake.starter.utils.MovementUtils.backTrack;
 
+@Slf4j
 public class PathSolverImpl implements PathSolver {
-    
-    private static int[][] dirs = {{1, 0}, {-1, 0}, {0, -1}, {0, 1}};
     
     private final StrategyService strategyService;
     private final Executor executor;
@@ -57,16 +56,18 @@ public class PathSolverImpl implements PathSolver {
         // Calculate the distance board for all snakes
         CompletableFuture<Vertex> safeFuture = FutureHelper.asyncExecute(() -> {
             Map<Vertex, int[][]> safeSnakesDistanceBoards = getSafeAllSnakesDistanceBoards(gameBoard);
-            int[][] myDistanceBoard = safeSnakesDistanceBoards.get(currentPos);
-            Vertex target = strategyService.makeDecision(gameBoard, safeSnakesDistanceBoards);
-            return backTrack(myDistanceBoard, target);
+            int[][] mySafeDistanceBoard = safeSnakesDistanceBoards.get(currentPos);
+            return strategyService.makeDecision(gameBoard, safeSnakesDistanceBoards)
+                                  .map(target -> backTrack(mySafeDistanceBoard, target))
+                                  .orElse(null);
         });
     
         CompletableFuture<Vertex> riskyFuture = FutureHelper.asyncExecute(() -> {
             Map<Vertex, int[][]> riskySnakesDistanceBoards = getRiskyAllSnakesDistanceBoards(gameBoard);
             int[][] myRiskDistanceBoard = riskySnakesDistanceBoards.get(currentPos);
-            Vertex target = strategyService.makeDecision(gameBoard, riskySnakesDistanceBoards);
-            return backTrack(myRiskDistanceBoard, target);
+            return strategyService.makeDecision(gameBoard, riskySnakesDistanceBoards)
+                                  .map(target -> backTrack(myRiskDistanceBoard, target))
+                                  .orElse(null);
         });
     
         return Optional.ofNullable(safeFuture.join()).orElse(riskyFuture.join());

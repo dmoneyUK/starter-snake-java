@@ -79,15 +79,16 @@ public class GameBoardUtils {
         board[dangerous.getRow()][dangerous.getColumn()] = 1;
     }
     
-    public static Vertex findEmptyNeighberVertex(int[][] board, Vertex start) {
+    public static Optional<Vertex> findEmptyNeighberVertex(int[][] board, Vertex start) {
         for (int[] dir : dirs) {
             int y = start.getRow() + dir[0];
             int x = start.getColumn() + dir[1];
             if (board[y][x] != 1) {
-                return Vertex.builder().row(y).column(x).build();
+                return Optional.of(Vertex.builder().row(y).column(x).build());
             }
         }
-        throw new RuntimeException("Trapped!!!");
+        log.warn("Trapped!!!");
+        return Optional.empty();
     }
     
     public static Optional<Vertex> findSafeVertexWithinTargetRound(int[][] distanceBoard, Vertex start) {

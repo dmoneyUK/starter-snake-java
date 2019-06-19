@@ -3,7 +3,6 @@ package io.battlesnake.starter.service.strategy;
 import io.battlesnake.starter.model.GameBoard;
 import io.battlesnake.starter.model.Snake;
 import io.battlesnake.starter.model.Vertex;
-import io.battlesnake.starter.utils.PrintingUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -37,10 +36,20 @@ public class StrategyFn {
         return STRATEGY_FAILURE;
     };
     
-    public static BiFunction<GameState, Optional<Vertex>, StrategyResult> lenghtCheck = (gameState, optionalTarget) -> {
-        //log.info("lenghtCheck");
+    public static BiFunction<GameState, Optional<Vertex>, StrategyResult> smallSnakeCheck = (gameState, optionalTarget) -> {
+        //log.info("smallSnakeCheck");
         Snake me = gameState.getGameBoard().getMe();
-        if (me.getLength() > 10) {
+        if (me.getLength() < 10) {
+            return StrategyResult.builder().success(true).build();
+        }
+        
+        return STRATEGY_FAILURE;
+    };
+    
+    public static BiFunction<GameState, Optional<Vertex>, StrategyResult> bigSnakeCheck = (gameState, optionalTarget) -> {
+        //log.info("middleSnakeCheck");
+        Snake me = gameState.getGameBoard().getMe();
+        if (me.getLength() >= 20) {
             return StrategyResult.builder().success(true).build();
         }
         
@@ -110,8 +119,9 @@ public class StrategyFn {
     
     public static BiFunction<GameState, Optional<Vertex>, StrategyResult> goEmptyNeighberStrategy = (gameState, optionalPara) -> {
         GameBoard gameBoard = gameState.getGameBoard();
-        Vertex nextPos = findEmptyNeighberVertex(gameBoard.getBoard(), gameBoard.getMe().getHead());
-        return StrategyResult.builder().success(true).target(nextPos).build();
+        return findEmptyNeighberVertex(gameBoard.getBoard(), gameBoard.getMe().getHead())
+                .map(v -> StrategyResult.builder().success(true).target(v).build())
+                .orElse(STRATEGY_FAILURE);
         
     };
     
