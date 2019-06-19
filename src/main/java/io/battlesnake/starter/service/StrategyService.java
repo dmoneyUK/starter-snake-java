@@ -6,6 +6,7 @@ import io.battlesnake.starter.service.strategy.GameState;
 import io.battlesnake.starter.service.strategy.StrategyResult;
 import io.battlesnake.starter.service.strategy.StrategyTransitStage;
 import io.battlesnake.starter.service.strategy.StrategyTransitStage.Stage;
+import jdk.nashorn.internal.runtime.regexp.joni.constants.OPCode;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -68,7 +69,7 @@ public class StrategyService {
         return options[rd.nextInt(options.length)];
     }
     
-    public Vertex makeDecision(GameBoard gameBoard, Map<Vertex, int[][]> snakesDistanceBoardMap) {
+    public Optional<Vertex> makeDecision(GameBoard gameBoard, Map<Vertex, int[][]> snakesDistanceBoardMap) {
         GameState gameState = GameState.builder()
                                        .gameBoard(gameBoard)
                                        .snakesDistanceBoardMap(snakesDistanceBoardMap)
@@ -90,7 +91,7 @@ public class StrategyService {
             }
         }
         
-        return current.getTarget();
+        return Optional.ofNullable(current.getTarget());
     }
     
     private StrategyTransitStage execute(GameState gameState, Optional<Vertex> previousTarget,

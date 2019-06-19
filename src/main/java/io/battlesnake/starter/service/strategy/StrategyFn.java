@@ -120,8 +120,9 @@ public class StrategyFn {
     
     public static BiFunction<GameState, Optional<Vertex>, StrategyResult> goEmptyNeighberStrategy = (gameState, optionalPara) -> {
         GameBoard gameBoard = gameState.getGameBoard();
-        Vertex nextPos = findEmptyNeighberVertex(gameBoard.getBoard(), gameBoard.getMe().getHead());
-        return StrategyResult.builder().success(true).target(nextPos).build();
+        return findEmptyNeighberVertex(gameBoard.getBoard(), gameBoard.getMe().getHead())
+                .map(v -> StrategyResult.builder().success(true).target(v).build())
+                .orElse(STRATEGY_FAILURE);
         
     };
     
