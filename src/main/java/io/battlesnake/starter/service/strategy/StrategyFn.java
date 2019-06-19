@@ -26,9 +26,10 @@ public class StrategyFn {
         //log.info("eagerFoodCheck");
         Snake me = gameState.getGameBoard().getMe();
         int[][] myDistanceBoard = gameState.getSnakesDistanceBoardMap().get(me.getHead());
-        boolean canWait = gameState.getGameBoard().getFoodList()
-                                   .parallelStream()
-                                   .anyMatch(food -> me.getHealth() - myDistanceBoard[food.getRow()][food.getColumn()] < 20);
+        //boolean canWait = gameState.getGameBoard().getFoodList()
+        //                           .parallelStream()
+        //                           .anyMatch(food -> me.getHealth() - myDistanceBoard[food.getRow()][food.getColumn()] < 20);
+        boolean canWait = me.getHealth()>=60;
         if (!canWait) {
             return StrategyResult.builder().success(true).build();
         }
