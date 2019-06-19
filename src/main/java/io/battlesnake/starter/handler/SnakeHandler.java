@@ -25,8 +25,7 @@ public class SnakeHandler {
      */
     private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
     private static final Map<String, String> EMPTY = new HashMap<>();
-    private final Executor executor = Executors.newFixedThreadPool(5);
-    private final PathSolver pathSolver = new PathSolverImpl(new StrategyService(), executor);
+    private final PathSolver pathSolver = new PathSolverImpl(new StrategyService());
     
     /**
      * Generic processor that prints out the request and response from the methods.

@@ -19,11 +19,9 @@ import static io.battlesnake.starter.utils.MovementUtils.backTrack;
 public class PathSolverImpl implements PathSolver {
     
     private final StrategyService strategyService;
-    private final Executor executor;
     
-    public PathSolverImpl(StrategyService strategyService, Executor executor) {
+    public PathSolverImpl(StrategyService strategyService) {
         this.strategyService = strategyService;
-        this.executor = executor;
     }
     
     @Override

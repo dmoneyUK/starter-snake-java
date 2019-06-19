@@ -28,7 +28,7 @@ public class StrategyFn {
         int[][] myDistanceBoard = gameState.getSnakesDistanceBoardMap().get(me.getHead());
         boolean canWait = gameState.getGameBoard().getFoodList()
                                    .parallelStream()
-                                   .anyMatch(food -> me.getHealth() - myDistanceBoard[food.getRow()][food.getColumn()] > 20);
+                                   .anyMatch(food -> me.getHealth() - myDistanceBoard[food.getRow()][food.getColumn()] < 20);
         if (!canWait) {
             return StrategyResult.builder().success(true).build();
         }
