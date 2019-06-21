@@ -50,6 +50,7 @@ public class StrategyService {
             new StageTransitRule(STARVING, findNearestFoodStrategy, FOUND_FOOD, NO_FOOD),
             new StageTransitRule(SMALL, stealOthersFoodStrategy, FOUND_FOOD, NO_FOOD),
             new StageTransitRule(MIDDLE, goFurthestStrategy, FOUND_FURTHEST, NO_EXIT),
+            //new StageTransitRule(MIDDLE, stealOthersFoodStrategy, FOUND_FOOD, NO_FOOD),
             new StageTransitRule(BIG, chaseTailStrategy, DECIDED, CANNOT_REACH_TAIL),
             new StageTransitRule(FOUND_FOOD, safeGuardStrategy, DECIDED, NO_FOOD),
             new StageTransitRule(NO_FOOD, goFurthestStrategy, DECIDED, NO_EXIT),
